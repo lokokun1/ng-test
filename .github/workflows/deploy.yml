@@ -22,8 +22,19 @@ jobs:
 
       - name: Install Terraform and Terragrunt
         run: |
-          choco install terraform -y
-          choco install terragrunt -y
+          sudo apt-get update -y
+          # Install Terraform
+          sudo apt-get install -y wget unzip
+          wget -q https://releases.hashicorp.com/terraform/1.9.6/terraform_1.9.6_linux_amd64.zip
+          unzip terraform_1.9.6_linux_amd64.zip
+          sudo mv terraform /usr/local/bin/
+          terraform -v
+
+          # Install Terragrunt
+          wget -q https://github.com/gruntwork-io/terragrunt/releases/latest/download/terragrunt_linux_amd64
+          chmod +x terragrunt_linux_amd64
+          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+          terragrunt -v
 
       - name: Deploy infrastructure
         working-directory: live/dev/s3
