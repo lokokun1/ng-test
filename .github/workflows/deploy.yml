@@ -37,7 +37,7 @@ jobs:
           terragrunt -v
 
       - name: Deploy infrastructure
-        working-directory: live/dev/s3
+        working-directory: terragrunt-demo/live/dev/s3
         run: |
           terragrunt init
           terragrunt apply -auto-approve
