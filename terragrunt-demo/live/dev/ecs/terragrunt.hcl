@@ -6,8 +6,9 @@
 # ==============================================================
 
 include "root" {
-  path = find_in_parent_folders()
+  path = "${get_repo_root()}/terragrunt-demo/terragrunt.hcl"
 }
+
 
 terraform {
   # ✅ Corrected: points to ECS module (not backend)
