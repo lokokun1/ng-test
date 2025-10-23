@@ -6,7 +6,7 @@
 # ==============================================================
 
 terraform {
-  # Required for Terragrunt to inject the remote_state backend.
+  # Required so Terragrunt can inject the backend configuration dynamically
   backend "s3" {}
 
   required_providers {
@@ -22,11 +22,18 @@ provider "aws" {
 }
 
 # --------------------------------------------------------------
-# S3 bucket for Terraform remote state
+# S3 Bucket for Terraform Remote State
 # --------------------------------------------------------------
 resource "aws_s3_bucket" "tf_state" {
-  bucket        = var.state_bucket_name
+  bucket        = var.bucket_name
   force_destroy = false  # Prevent accidental deletions of state bucket
+
+  tags = {
+    Name        = var.bucket_name
+    Environment = var.environment
+    ManagedBy   = "Terragrunt"
+    Purpose     = "TerraformState"
+  }
 }
 
 # Enable versioning (keeps history of state files)
@@ -37,7 +44,7 @@ resource "aws_s3_bucket_versioning" "tf_state_versioning" {
   }
 }
 
-# Enable default AES-256 encryption
+# Enable AES-256 encryption
 resource "aws_s3_bucket_server_side_encryption_configuration" "tf_state_encryption" {
   bucket = aws_s3_bucket.tf_state.id
   rule {
@@ -47,7 +54,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "tf_state_encrypti
   }
 }
 
-# Block all public access for safety
+# Block all public access (security best practice)
 resource "aws_s3_bucket_public_access_block" "tf_state_block" {
   bucket                  = aws_s3_bucket.tf_state.id
   block_public_acls        = true
@@ -57,10 +64,10 @@ resource "aws_s3_bucket_public_access_block" "tf_state_block" {
 }
 
 # --------------------------------------------------------------
-# DynamoDB table for Terraform state locking
+# DynamoDB Table for Terraform State Locking
 # --------------------------------------------------------------
 resource "aws_dynamodb_table" "tf_locks" {
-  name         = var.lock_table_name
+  name         = var.dynamodb_table
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
@@ -70,19 +77,22 @@ resource "aws_dynamodb_table" "tf_locks" {
   }
 
   tags = {
-    Purpose = "TerraformStateLock"
+    Name        = var.dynamodb_table
+    Environment = var.environment
+    ManagedBy   = "Terragrunt"
+    Purpose     = "TerraformStateLock"
   }
 }
 
 # --------------------------------------------------------------
 # Outputs
 # --------------------------------------------------------------
-output "state_bucket_name" {
+output "bucket_name" {
   description = "The name of the S3 bucket storing Terraform state"
   value       = aws_s3_bucket.tf_state.bucket
 }
 
-output "lock_table_name" {
+output "dynamodb_table" {
   description = "The name of the DynamoDB table used for state locking"
   value       = aws_dynamodb_table.tf_locks.name
 }
@@ -95,12 +105,17 @@ variable "region" {
   type        = string
 }
 
-variable "state_bucket_name" {
+variable "environment" {
+  description = "Deployment environment (e.g., dev, stage, prod)"
+  type        = string
+}
+
+variable "bucket_name" {
   description = "Name of the S3 bucket to store Terraform state"
   type        = string
 }
 
-variable "lock_table_name" {
+variable "dynamodb_table" {
   description = "Name of the DynamoDB table for state locking"
   type        = string
 }

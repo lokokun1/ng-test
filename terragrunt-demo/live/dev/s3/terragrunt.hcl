@@ -2,7 +2,6 @@
 # live/dev/s3/terragrunt.hcl
 # Purpose:
 #   Deploys an example S3 bucket for application use.
-#   Depends on the backend (S3 + DynamoDB) being created first.
 # ==============================================================
 
 include "root" {
@@ -10,24 +9,27 @@ include "root" {
 }
 
 terraform {
-  source = "../../../modules/backend"
+  # ✅ Correct module path
+  source = "../../../modules/s3"
 }
 
 # --------------------------------------------------------------
-# Dependencies
-# --------------------------------------------------------------
-# Make sure backend (state bucket + DynamoDB) is created first
-dependency "backend" {
-  config_path = "../backend"
-}
-
-# --------------------------------------------------------------
-# Inputs passed to the S3 module
+# Inputs for S3 module
 # --------------------------------------------------------------
 inputs = {
-  # AWS region (inherited from root.hcl)
-  region      = "us-east-1"
+  # Logical environment
+  environment = "dev"
 
-  # Name of the application/data bucket
-  bucket_name = "my-demo-bucket-dev"
+  # Application/data bucket name (can use project prefix from root)
+  bucket_name = "terragrunt-demo-dev-data-bucket"
+
+  # Optional settings (depends on your module implementation)
+  versioning = true
+
+  # Standard tags
+  tags = {
+    Project     = "terragrunt-demo"
+    Environment = "dev"
+    ManagedBy   = "Terragrunt"
+  }
 }

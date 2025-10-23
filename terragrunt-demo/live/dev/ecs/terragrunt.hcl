@@ -10,7 +10,8 @@ include "root" {
 }
 
 terraform {
-  source = "../../../modules/backend"
+  # ✅ Corrected: points to ECS module (not backend)
+  source = "../../../modules/ecs"
 }
 
 # --------------------------------------------------------------
@@ -19,11 +20,13 @@ terraform {
 dependency "s3" {
   config_path = "../s3"
 
-  # Terragrunt will wait for the S3 module to finish before ECS applies
-  # and automatically read its outputs.
+  # Terragrunt waits for S3 before applying ECS, and reads its outputs
+  skip_outputs = false
+
   mock_outputs = {
     bucket_name = "placeholder-bucket"
   }
+
   mock_outputs_allowed_terraform_commands = ["validate", "plan"]
 }
 
@@ -31,13 +34,15 @@ dependency "s3" {
 # Inputs for ECS module
 # --------------------------------------------------------------
 inputs = {
-  region       = "us-east-1"
+  # Environment info
+  environment = "dev"
 
-  # ECS cluster name
-  cluster_name = "demo-ecs-cluster"
+  # ECS cluster settings
+  cluster_name    = "demo-ecs-cluster"
+  desired_count   = 2
 
   # Inject S3 bucket name from dependency output
-  bucket_name  = dependency.s3.outputs.bucket_name
+  bucket_name     = dependency.s3.outputs.bucket_name
 
   # Replace with your actual subnet IDs from your VPC
   subnets = [
@@ -45,6 +50,13 @@ inputs = {
     "subnet-abcdef0123456789"
   ]
 
-  # Optional tags for clarity
-  environment = "dev"
+  # Example container image from your ECR
+  container_image = "123456789012.dkr.ecr.us-east-1.amazonaws.com/demo-ecs:latest"
+
+  # Standard tags (always good practice)
+  tags = {
+    Project     = "terragrunt-demo"
+    Environment = "dev"
+    ManagedBy   = "Terragrunt"
+  }
 }

@@ -6,7 +6,7 @@
 # ==============================================================
 
 terraform {
-  backend "s3" {}  # Required so Terragrunt can inject backend config
+  backend "s3" {}
 
   required_providers {
     aws = {
@@ -24,7 +24,7 @@ provider "aws" {
 # IAM Role for ECS Task Execution
 # --------------------------------------------------------------
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.cluster_name}-ecs-task-role"
+  name = "${var.project_prefix}-${var.environment}-${var.cluster_name}-task-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -40,9 +40,10 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   })
 
   tags = {
-    Name        = "${var.cluster_name}-ecs-task-role"
+    Name        = "${var.project_prefix}-${var.environment}-${var.cluster_name}-task-role"
+    Project     = var.project_prefix
     Environment = var.environment
-    ManagedBy   = "Terraform/Terragrunt"
+    ManagedBy   = "Terragrunt"
   }
 }
 
@@ -55,12 +56,27 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
 # ECS Cluster
 # --------------------------------------------------------------
 resource "aws_ecs_cluster" "demo" {
-  name = var.cluster_name
+  name = "${var.project_prefix}-${var.environment}-${var.cluster_name}"
 
   tags = {
-    Name        = var.cluster_name
+    Name        = "${var.project_prefix}-${var.environment}-${var.cluster_name}"
+    Project     = var.project_prefix
     Environment = var.environment
-    ManagedBy   = "Terraform/Terragrunt"
+    ManagedBy   = "Terragrunt"
+  }
+}
+
+# --------------------------------------------------------------
+# CloudWatch Log Group for ECS Logs
+# --------------------------------------------------------------
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/${var.project_prefix}-${var.environment}-${var.cluster_name}"
+  retention_in_days = 7
+
+  tags = {
+    Project     = var.project_prefix
+    Environment = var.environment
+    ManagedBy   = "Terragrunt"
   }
 }
 
@@ -68,7 +84,7 @@ resource "aws_ecs_cluster" "demo" {
 # ECS Task Definition
 # --------------------------------------------------------------
 resource "aws_ecs_task_definition" "demo_task" {
-  family                   = "${var.cluster_name}-task"
+  family                   = "${var.project_prefix}-${var.environment}-${var.cluster_name}-task"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
@@ -78,7 +94,7 @@ resource "aws_ecs_task_definition" "demo_task" {
   container_definitions = jsonencode([
     {
       name      = "demo-container"
-      image     = "amazonlinux:latest"
+      image     = var.container_image
       essential = true
       environment = [
         {
@@ -89,7 +105,7 @@ resource "aws_ecs_task_definition" "demo_task" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = "/ecs/${var.cluster_name}"
+          awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
@@ -98,9 +114,10 @@ resource "aws_ecs_task_definition" "demo_task" {
   ])
 
   tags = {
-    Name        = "${var.cluster_name}-task"
+    Name        = "${var.project_prefix}-${var.environment}-${var.cluster_name}-task"
+    Project     = var.project_prefix
     Environment = var.environment
-    ManagedBy   = "Terraform/Terragrunt"
+    ManagedBy   = "Terragrunt"
   }
 }
 
@@ -108,23 +125,27 @@ resource "aws_ecs_task_definition" "demo_task" {
 # ECS Service
 # --------------------------------------------------------------
 resource "aws_ecs_service" "demo_service" {
-  name            = "${var.cluster_name}-service"
+  name            = "${var.project_prefix}-${var.environment}-${var.cluster_name}-service"
   cluster         = aws_ecs_cluster.demo.id
   task_definition = aws_ecs_task_definition.demo_task.arn
-  desired_count   = 1
+  desired_count   = var.desired_count
   launch_type     = "FARGATE"
 
   network_configuration {
-    assign_public_ip = true
+    assign_public_ip = var.assign_public_ip
     subnets          = var.subnets
   }
 
-  depends_on = [aws_ecs_task_definition.demo_task]
+  depends_on = [
+    aws_ecs_task_definition.demo_task,
+    aws_cloudwatch_log_group.ecs_logs
+  ]
 
   tags = {
-    Name        = "${var.cluster_name}-service"
+    Name        = "${var.project_prefix}-${var.environment}-${var.cluster_name}-service"
+    Project     = var.project_prefix
     Environment = var.environment
-    ManagedBy   = "Terraform/Terragrunt"
+    ManagedBy   = "Terragrunt"
   }
 }
 
@@ -149,13 +170,23 @@ output "ecs_service_name" {
 # --------------------------------------------------------------
 # Variables
 # --------------------------------------------------------------
+variable "project_prefix" {
+  description = "Prefix used for naming and tagging resources"
+  type        = string
+}
+
 variable "cluster_name" {
-  description = "Name of the ECS cluster"
+  description = "Base name of the ECS cluster"
   type        = string
 }
 
 variable "bucket_name" {
   description = "Name of the S3 bucket to inject into container environment"
+  type        = string
+}
+
+variable "container_image" {
+  description = "Full container image (ECR or public repo)"
   type        = string
 }
 
@@ -169,8 +200,19 @@ variable "subnets" {
   type        = list(string)
 }
 
+variable "desired_count" {
+  description = "Number of desired ECS service tasks"
+  type        = number
+  default     = 1
+}
+
+variable "assign_public_ip" {
+  description = "Whether to assign public IP to ECS tasks"
+  type        = bool
+  default     = true
+}
+
 variable "environment" {
   description = "Environment label (e.g., dev, stage, prod)"
   type        = string
-  default     = "dev"
 }

@@ -13,8 +13,21 @@ terraform {
   source = "../../../modules/backend"
 }
 
+# --------------------------------------------------------------
+# Inputs for Backend Module
+# --------------------------------------------------------------
 inputs = {
-  region            = "us-east-1"
-  state_bucket_name = "my-terragrunt-demo-bucket-s3"
-  lock_table_name   = "terraform-locks"
+  # Environment for tagging and naming
+  environment = "dev"
+
+  # Bucket & DynamoDB names derived from root.hcl's project_prefix
+  bucket_name     = "${local.project_prefix}-bucket-s3"
+  dynamodb_table  = "terraform-locks"
+
+  # Optional tags for management
+  tags = {
+    Project     = local.project_prefix
+    Environment = "dev"
+    ManagedBy   = "Terragrunt"
+  }
 }

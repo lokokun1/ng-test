@@ -22,20 +22,22 @@ provider "aws" {
 }
 
 # --------------------------------------------------------------
-# S3 bucket definition
+# S3 Bucket Definition
 # --------------------------------------------------------------
 resource "aws_s3_bucket" "app_bucket" {
   bucket        = var.bucket_name
-  force_destroy = false   # Prevent accidental deletion if non-empty
+  force_destroy = var.force_destroy
 
   tags = {
     Name        = var.bucket_name
+    Project     = var.project_prefix
     Environment = var.environment
-    ManagedBy   = "Terraform/Terragrunt"
+    ManagedBy   = "Terragrunt"
+    Purpose     = "ApplicationData"
   }
 }
 
-# Block all public access
+# Block all public access (security best practice)
 resource "aws_s3_bucket_public_access_block" "app_bucket_block" {
   bucket                  = aws_s3_bucket.app_bucket.id
   block_public_acls        = true
@@ -86,5 +88,15 @@ variable "region" {
 variable "environment" {
   description = "Environment label (e.g., dev, stage, prod)"
   type        = string
-  default     = "dev"
+}
+
+variable "project_prefix" {
+  description = "Project name prefix for tagging consistency"
+  type        = string
+}
+
+variable "force_destroy" {
+  description = "Allow bucket deletion even if non-empty (useful for dev/testing)"
+  type        = bool
+  default     = false
 }
