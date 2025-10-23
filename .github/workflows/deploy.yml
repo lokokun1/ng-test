@@ -44,13 +44,12 @@ jobs:
         env:
           TERRAGRUNT_DISABLE_REMOTE_STATE: true
         run: |
-          echo "🏗️ Bootstrapping Terraform backend..."
-          terraform init -backend=false
-          # Apply if not already existing (ignore error if exists)
-          terraform apply -auto-approve || echo "Backend already exists, continuing..."
+          echo "🏗️ Bootstrapping Terraform backend via Terragrunt..."
+          terragrunt init
+          terragrunt apply --terragrunt-non-interactive -- -auto-approve || echo "✅ Backend already exists, continuing..."
 
   # ------------------------------------------------------------
-  # 2. DEPLOY ENVIRONMENT
+  # 2. DEPLOY INFRASTRUCTURE (S3 + ECS)
   # ------------------------------------------------------------
   deploy:
     name: Deploy environment via Terragrunt
