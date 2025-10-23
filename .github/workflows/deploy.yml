@@ -40,7 +40,7 @@ jobs:
           terragrunt -v
 
       - name: Bootstrap remote state backend
-        working-directory: terragrunt-demo/live/dev/backend
+        working-directory: terragrunt-demo/live/dev/
         run: |
           echo "Bootstrapping Terraform backend..."
           # Run Terraform directly to avoid remote_state dependency issues
