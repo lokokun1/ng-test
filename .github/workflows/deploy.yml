@@ -35,6 +35,14 @@ jobs:
           sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
           terragrunt -v
 
+      - name: 🔍 Debug Terragrunt
+        working-directory: terragrunt-demo/live/dev/backend
+        run: |
+          pwd
+          echo "Checking Terragrunt file discovery..."
+          terragrunt find-in-parent-folders
+
+
       - name: 🚀 Deploy infrastructure
         working-directory: terragrunt-demo/
         run: |
