@@ -5,13 +5,12 @@
 #   Depends on the S3 module for shared resources.
 # ==============================================================
 
-include {
-  path = find_in_parent_folders("terragrunt.hcl")
+include "root" {
+  path = find_in_parent_folders()
 }
 
 terraform {
-  # Path to the Terraform ECS module
-  source = "../../../modules/ecs"
+  source = "../../../modules/backend"
 }
 
 # --------------------------------------------------------------

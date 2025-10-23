@@ -40,7 +40,7 @@ jobs:
           terragrunt -v
 
       - name: Bootstrap remote state backend
-        working-directory: terragrunt-demo/live/dev/
+        working-directory: terragrunt-demo/live/dev/backend
         env:
           TERRAGRUNT_DISABLE_REMOTE_STATE: true
         run: |
