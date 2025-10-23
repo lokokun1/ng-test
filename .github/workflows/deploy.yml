@@ -41,11 +41,11 @@ jobs:
           terragrunt -v
 
       - name: Initialize Terragrunt
-        working-directory: live/dev
+        working-directory: terragrunt-demo/live/dev
         run: |
           terragrunt run-all init -reconfigure
 
       - name: Deploy infrastructure
-        working-directory: live/dev
+        working-directory: terragrunt-demo/live/dev
         run: |
           terragrunt run-all apply -auto-approve
