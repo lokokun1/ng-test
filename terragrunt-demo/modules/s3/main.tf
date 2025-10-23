@@ -1,12 +1,4 @@
-# ==============================================================
-# modules/s3/main.tf
-# Purpose:
-#   Creates an S3 bucket for application use.
-#   This bucket is independent from the Terraform state bucket.
-# ==============================================================
-
 terraform {
-  # Required for Terragrunt to inject remote state backend config
   backend "s3" {}
 
   required_providers {
@@ -21,23 +13,16 @@ provider "aws" {
   region = var.region
 }
 
-# --------------------------------------------------------------
-# S3 Bucket Definition
-# --------------------------------------------------------------
 resource "aws_s3_bucket" "app_bucket" {
   bucket        = var.bucket_name
   force_destroy = var.force_destroy
 
-  tags = {
-    Name        = var.bucket_name
-    Project     = var.project_prefix
-    Environment = var.environment
-    ManagedBy   = "Terragrunt"
-    Purpose     = "ApplicationData"
-  }
+  tags = merge(var.tags, {
+    Name    = var.bucket_name
+    Purpose = "ApplicationData"
+  })
 }
 
-# Block all public access (security best practice)
 resource "aws_s3_bucket_public_access_block" "app_bucket_block" {
   bucket                  = aws_s3_bucket.app_bucket.id
   block_public_acls        = true
@@ -46,7 +31,6 @@ resource "aws_s3_bucket_public_access_block" "app_bucket_block" {
   restrict_public_buckets  = true
 }
 
-# Enable encryption
 resource "aws_s3_bucket_server_side_encryption_configuration" "app_bucket_encryption" {
   bucket = aws_s3_bucket.app_bucket.id
   rule {
@@ -56,7 +40,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "app_bucket_encryp
   }
 }
 
-# Enable versioning
 resource "aws_s3_bucket_versioning" "app_bucket_versioning" {
   bucket = aws_s3_bucket.app_bucket.id
   versioning_configuration {
@@ -64,39 +47,28 @@ resource "aws_s3_bucket_versioning" "app_bucket_versioning" {
   }
 }
 
-# --------------------------------------------------------------
-# Outputs
-# --------------------------------------------------------------
 output "bucket_name" {
-  description = "Name of the created S3 bucket"
-  value       = aws_s3_bucket.app_bucket.bucket
+  value = aws_s3_bucket.app_bucket.bucket
 }
 
-# --------------------------------------------------------------
-# Variables
-# --------------------------------------------------------------
 variable "bucket_name" {
-  description = "Name of the S3 bucket to create"
-  type        = string
+  type = string
 }
 
 variable "region" {
-  description = "AWS region in which to create the S3 bucket"
-  type        = string
+  type = string
 }
 
 variable "environment" {
-  description = "Environment label (e.g., dev, stage, prod)"
-  type        = string
+  type = string
 }
 
-variable "project_prefix" {
-  description = "Project name prefix for tagging consistency"
-  type        = string
+variable "tags" {
+  type    = map(string)
+  default = {}
 }
 
 variable "force_destroy" {
-  description = "Allow bucket deletion even if non-empty (useful for dev/testing)"
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
