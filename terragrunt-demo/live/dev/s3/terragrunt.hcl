@@ -5,31 +5,29 @@
 # ==============================================================
 
 include "root" {
-  path = "${get_repo_root()}/terragrunt-demo/terragrunt.hcl"
+  path   = "${get_repo_root()}/terragrunt-demo/terragrunt.hcl"
+  expose = true
 }
 
-
 terraform {
-  # ✅ Correct module path
   source = "../../../modules/s3"
 }
 
-# --------------------------------------------------------------
-# Inputs for S3 module
-# --------------------------------------------------------------
+locals {
+  project_prefix = include.root.locals.project_prefix
+  aws_region     = include.root.locals.aws_region
+}
+
+dependency "backend" {
+  config_path = "../backend"
+}
+
 inputs = {
-  # Logical environment
-  environment = "dev"
+  region      = local.aws_region
+  bucket_name = "${local.project_prefix}-data-${local.aws_region}-dev"
 
-  # Application/data bucket name (can use project prefix from root)
-  bucket_name = "terragrunt-demo-dev-data-bucket"
-
-  # Optional settings (depends on your module implementation)
-  versioning = true
-
-  # Standard tags
   tags = {
-    Project     = "terragrunt-demo"
+    Project     = local.project_prefix
     Environment = "dev"
     ManagedBy   = "Terragrunt"
   }
