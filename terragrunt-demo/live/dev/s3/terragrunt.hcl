@@ -15,10 +15,4 @@ terraform {
 inputs = {
   environment = "dev"
   bucket_name = "${include.root.locals.project_prefix}-app-bucket"
-
-  tags = {
-    Project     = include.root.locals.project_prefix
-    Environment = "dev"
-    ManagedBy   = "Terragrunt"
   }
-}
