@@ -2,7 +2,7 @@
 # live/dev/backend/terragrunt.hcl
 # Purpose:
 #   Creates the S3 bucket and DynamoDB table used for
-#   Terraform remote state and locking.
+#   Terraform remote state and state locking.
 # ==============================================================
 
 include "root" {
@@ -15,7 +15,6 @@ terraform {
 }
 
 locals {
-  # Read locals from the root file
   project_prefix = include.root.locals.project_prefix
   aws_region     = include.root.locals.aws_region
 }
