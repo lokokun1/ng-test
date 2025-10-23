@@ -1,4 +1,5 @@
 terraform {
+  backend "s3" {}   # ← required so Terragrunt can inject backend config
   required_providers {
     aws = {
       source  = "hashicorp/aws"
