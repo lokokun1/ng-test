@@ -24,7 +24,7 @@ remote_state {
 
   config = {
     # S3 bucket to store Terraform state files
-    bucket = "${local.project_prefix}-bucket-s3"
+    bucket = "terragrunt-demo-bucket-s3"
 
     # Unique key for each module, based on folder path
     key = "${path_relative_to_include()}/terraform.tfstate"
