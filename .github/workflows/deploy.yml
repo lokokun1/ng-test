@@ -35,8 +35,10 @@ jobs:
           sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
           terragrunt -v
 
-      - name: Deploy infrastructure (S3 + ECS)
+      - name: 🚀 Deploy infrastructure
         working-directory: terragrunt-demo/live/dev
         run: |
-          echo "🚀 Deploying environment via Terragrunt..."
+          echo "🚀 Deploying full environment via Terragrunt..."
+          export TERRAGRUNT_NON_INTERACTIVE=true
           terragrunt run-all apply -auto-approve
+
