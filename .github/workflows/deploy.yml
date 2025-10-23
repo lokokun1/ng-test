@@ -39,7 +39,7 @@ jobs:
           sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
           terragrunt -v
 
-        - name: Bootstrap remote state backend
+      - name: Bootstrap remote state backend
         working-directory: terragrunt-demo/live/dev/backend
         env:
           TERRAGRUNT_DISABLE_REMOTE_STATE: true
