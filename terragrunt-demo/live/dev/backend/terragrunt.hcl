@@ -1,31 +1,18 @@
-# ==============================================================
-# live/dev/backend/terragrunt.hcl
-# Purpose:
-#   Creates the S3 bucket and DynamoDB table used for
-#   Terraform remote state and state locking.
-# ==============================================================
-
 include "root" {
-  path   = "${get_repo_root()}/terragrunt-demo/terragrunt.hcl"
-  expose = true
+  path = find_in_parent_folders()
 }
 
 terraform {
   source = "../../../modules/backend"
 }
 
-locals {
-  project_prefix = include.root.locals.project_prefix
-  aws_region     = include.root.locals.aws_region
-}
-
 inputs = {
-  region            = local.aws_region
-  state_bucket_name = "${local.project_prefix}-bucket-s3"
-  lock_table_name   = "terraform-locks"
+  environment    = "dev"
+  bucket_name    = "${include.root.locals.project_prefix}-bucket-s3"
+  dynamodb_table = "terraform-locks"
 
   tags = {
-    Project     = local.project_prefix
+    Project     = include.root.locals.project_prefix
     Environment = "dev"
     ManagedBy   = "Terragrunt"
   }

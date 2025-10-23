@@ -37,11 +37,3 @@ remote_state {
     dynamodb_table = "terraform-locks"
   }
 }
-
-# --------------------------------------------------------------
-# Default inputs inherited by all child modules
-# --------------------------------------------------------------
-inputs = {
-  region         = local.aws_region
-  project_prefix = local.project_prefix
-}
