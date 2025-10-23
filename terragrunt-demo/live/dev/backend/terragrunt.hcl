@@ -17,16 +17,15 @@ terraform {
 # Inputs for Backend Module
 # --------------------------------------------------------------
 inputs = {
-  # Environment for tagging and naming
   environment = "dev"
 
-  # Bucket & DynamoDB names derived from root.hcl's project_prefix
-  bucket_name     = "${local.project_prefix}-bucket-s3"
+  # ✅ Correctly reference inherited locals via include.root.locals
+  bucket_name     = "${include.root.locals.project_prefix}-bucket-s3"
   dynamodb_table  = "terraform-locks"
 
-  # Optional tags for management
+  # ✅ Tags fixed too
   tags = {
-    Project     = local.project_prefix
+    Project     = include.root.locals.project_prefix
     Environment = "dev"
     ManagedBy   = "Terragrunt"
   }
