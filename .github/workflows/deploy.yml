@@ -1,78 +1,24 @@
-name: Deploy Terraform via Terragrunt
-
-on:
-  push:
-    branches: [ main ]
-
-env:
-  AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
-
 jobs:
-  # ------------------------------------------------------------
-  # 1. BOOTSTRAP BACKEND (S3 + DynamoDB)
-  # ------------------------------------------------------------
-  bootstrap-backend:
-    name: Bootstrap Terraform backend (S3 + DynamoDB)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 🧩 Checkout repository
-        uses: actions/checkout@v4
-
-      - name: 🔐 Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: ⚙️ Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.9.6
-
-      - name: ⚙️ Install Terragrunt
-        run: |
-          TG_VERSION=v0.67.3
-          wget -q https://github.com/gruntwork-io/terragrunt/releases/download/${TG_VERSION}/terragrunt_linux_amd64
-          chmod +x terragrunt_linux_amd64
-          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
-          terragrunt -v
-
-      - name: 🪣 Bootstrap remote state backend
-        working-directory: terragrunt-demo/live/dev/backend
-        env:
-          TERRAGRUNT_DISABLE_REMOTE_STATE: true
-        run: |
-          echo "🏗️ Bootstrapping Terraform backend via Terragrunt..."
-          terragrunt init
-          terragrunt apply --terragrunt-non-interactive -- -auto-approve || echo "✅ Backend already exists, continuing..."
-
-  # ------------------------------------------------------------
-  # 2. DEPLOY INFRASTRUCTURE (S3 + ECS)
-  # ------------------------------------------------------------
   deploy:
     name: Deploy environment via Terragrunt
     runs-on: ubuntu-latest
-    needs: bootstrap-backend
-
     steps:
-      - name: 🧩 Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 🔐 Configure AWS credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
 
-      - name: ⚙️ Setup Terraform
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.6
 
-      - name: ⚙️ Install Terragrunt
+      - name: Install Terragrunt
         run: |
           TG_VERSION=v0.67.3
           wget -q https://github.com/gruntwork-io/terragrunt/releases/download/${TG_VERSION}/terragrunt_linux_amd64
@@ -80,14 +26,8 @@ jobs:
           sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
           terragrunt -v
 
-      - name: 🧱 Initialize Terragrunt (after backend bootstrap)
+      - name: Deploy infrastructure (S3 + ECS)
         working-directory: terragrunt-demo/live/dev
         run: |
-          echo "🧱 Initializing Terragrunt with remote backend..."
-          terragrunt run-all init --terragrunt-non-interactive -- -reconfigure
-
-      - name: 🚀 Deploy infrastructure
-        working-directory: terragrunt-demo/live/dev
-        run: |
-          echo "🚀 Deploying full environment via Terragrunt..."
+          echo "🚀 Deploying environment via Terragrunt..."
           terragrunt run-all apply --terragrunt-non-interactive -- -auto-approve
