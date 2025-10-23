@@ -39,12 +39,13 @@ jobs:
           chmod +x terragrunt_linux_amd64
           sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
           terragrunt -v
-      - name: Clean Terragrunt cache
-        run: |
-          rm -rf .terragrunt-cache
 
       - name: Deploy infrastructure
         working-directory: terragrunt-demo/live/dev/s3
         run: |
           terragrunt init
           terragrunt apply -auto-approve
+
+      - name: Clean Terragrunt cache
+        run: |
+          rm -rf .terragrunt-cache
