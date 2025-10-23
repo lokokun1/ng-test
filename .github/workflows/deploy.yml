@@ -36,7 +36,7 @@ jobs:
           terragrunt -v
 
       - name: 🚀 Deploy infrastructure
-        working-directory: terragrunt-demo/
+        working-directory: terragrunt-demo
         run: |
           echo "🚀 Deploying full environment via Terragrunt..."
           export TERRAGRUNT_NON_INTERACTIVE=true
