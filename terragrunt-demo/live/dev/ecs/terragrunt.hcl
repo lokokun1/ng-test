@@ -8,5 +8,4 @@ terraform {
 
 inputs = {
   environment   = "dev"
-  cluster_name  = "${include.root.locals.project_prefix}-dev-cluster"
   }
