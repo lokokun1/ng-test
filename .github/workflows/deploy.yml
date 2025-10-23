@@ -36,7 +36,7 @@ jobs:
           terragrunt -v
 
       - name: 🔍 Debug Terragrunt
-        working-directory: terragrunt-demo/live/dev/backend
+        working-directory: terragrunt-demo/
         run: |
           pwd
           echo "Checking Terragrunt file discovery..."
