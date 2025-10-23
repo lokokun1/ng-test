@@ -8,8 +8,8 @@ terraform {
 
 locals {
   # Import locals from environment and common tag files
-  env_vars    = (read_terragrunt_config(find_in_parent_folders("env.hcl"))).locals
-  common_tags = (read_terragrunt_config(find_in_parent_folders("common_tags.hcl"))).locals
+  env_vars    = read_terragrunt_config(find_in_parent_folders("env.hcl")).locals
+  common_tags = read_terragrunt_config(find_in_parent_folders("common_tags.hcl")).locals
 
   env     = local.env_vars.env
   project = local.env_vars.project_name
@@ -23,7 +23,11 @@ locals {
 
 inputs = {
   environment    = local.env
+  region         = local.region
+
+  # These match the module variables in modules/backend/main.tf
   bucket_name    = "${local.project}-bucket-s3"
   dynamodb_table = "terraform-locks"
+
   tags           = local.tags
 }
