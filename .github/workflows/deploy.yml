@@ -39,4 +39,4 @@ jobs:
         working-directory: terragrunt-demo/live/dev
         run: |
           echo "🚀 Deploying environment via Terragrunt..."
-          terragrunt run-all apply --terragrunt-non-interactive -- -auto-approve
+          terragrunt run-all apply -auto-approve
