@@ -43,9 +43,9 @@ jobs:
       - name: Initialize Terragrunt
         working-directory: terragrunt-demo/live/dev
         run: |
-          terragrunt init
+          terragrunt run init -- -reconfigure
 
       - name: Deploy infrastructure
         working-directory: terragrunt-demo/live/dev
         run: |
-          terragrunt apply -auto-approve
+          terragrunt run apply -- -auto-approve
