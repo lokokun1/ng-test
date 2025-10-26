@@ -37,13 +37,18 @@ locals {
 # ECS module inputs
 # --------------------------------------------------------------
 inputs = {
-  environment   = local.env
-  cluster_name  = "ecs-${local.env}"
-  region        = local.region
-  subnets       = local.subnets
-  tags          = local.tags
+  environment    = local.env
+  cluster_name   = "ecs-${local.env}"
+  region         = local.region
+  subnets        = local.subnets
+  tags           = local.tags
 
-  # optional values, can stay defaults from module
+  # --- Required ECS variables ---
+  project         = local.project
+  bucket_name     = "${local.project}-app-bucket"
+  container_image = "nginx:latest"  # 🔧 Change to your real image name
+
+  # Optional
   desired_count    = 1
   assign_public_ip = true
 }
