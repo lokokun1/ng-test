@@ -1,5 +1,5 @@
 locals {
-  vpc_id  = "vpc-xxxxxxxxxxxx"  # optional (only if you want to fix to a specific VPC)
+  vpc_id = "vpc-xxxxxxxxxxxx"  # optional
   subnets = [
     "subnet-0e68f42a9d5bc366e",
     "subnet-055cf562a87345a2d",
