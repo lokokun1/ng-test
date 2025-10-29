@@ -46,7 +46,7 @@ inputs = {
   # --- Required ECS variables ---
   project         = local.project
   bucket_name     = "${local.project}-app-bucket"
-  container_image = "nginx:latest"  # 🔧 Change to your real image name
+  container_image = "nginx:2026"
 
   # Optional
   desired_count    = 1
