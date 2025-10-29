@@ -13,32 +13,11 @@ provider "aws" {
   region = var.region
 }
 
-# --------------------------------------------------------------
-# Automatically detect usable subnets (fallback if no default VPC)
-# --------------------------------------------------------------
-
-# Try to find a default VPC (if one exists)
-data "aws_vpcs" "all" {}
-
-# Fetch subnets from the first available VPC
-data "aws_subnets" "auto" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpcs.all.ids[0]]
-  }
-}
-
-# If var.subnets is provided → use it
-# If not → use detected subnets from the first available VPC
-locals {
-  effective_subnets = length(var.subnets) > 0 ? var.subnets : data.aws_subnets.auto.ids
-}
-
-# --------------------------------------------------------------
-# ECS IAM Role
-# --------------------------------------------------------------
+# =====================================================================
+# IAM Role for ECS Task Execution
+# =====================================================================
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.project}-${var.environment}-${var.cluster_name}-task-role"
+  name_prefix = "${var.project}-${var.environment}-${var.cluster_name}-task-role-"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -61,26 +40,23 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# --------------------------------------------------------------
-# ECS Cluster
-# --------------------------------------------------------------
+# =====================================================================
+# ECS Cluster & Logging
+# =====================================================================
 resource "aws_ecs_cluster" "demo" {
   name = "${var.project}-${var.environment}-${var.cluster_name}"
   tags = var.tags
 }
 
-# --------------------------------------------------------------
-# CloudWatch Logs
-# --------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "ecs_logs" {
   name              = "/ecs/${var.project}-${var.environment}-${var.cluster_name}"
   retention_in_days = 7
   tags              = var.tags
 }
 
-# --------------------------------------------------------------
+# =====================================================================
 # ECS Task Definition
-# --------------------------------------------------------------
+# =====================================================================
 resource "aws_ecs_task_definition" "demo_task" {
   family                   = "${var.project}-${var.environment}-${var.cluster_name}-task"
   requires_compatibilities = ["FARGATE"]
@@ -89,34 +65,39 @@ resource "aws_ecs_task_definition" "demo_task" {
   network_mode             = "awsvpc"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
-  container_definitions = jsonencode([
-    {
-      name      = "demo-container"
-      image     = var.container_image
-      essential = true
-      environment = [
-        {
-          name  = "BUCKET_NAME"
-          value = var.bucket_name
-        }
-      ]
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
-          awslogs-region        = var.region
-          awslogs-stream-prefix = "ecs"
-        }
+  container_definitions = jsonencode([{
+    name      = "demo-container"
+    image     = var.container_image
+    essential = true
+    environment = [
+      {
+        name  = "BUCKET_NAME"
+        value = var.bucket_name
+      }
+    ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
+        awslogs-region        = var.region
+        awslogs-stream-prefix = "ecs"
       }
     }
-  ])
+    portMappings = [
+      {
+        containerPort = 80
+        hostPort      = 80
+        protocol      = "tcp"
+      }
+    ]
+  }])
 
   tags = var.tags
 }
 
-# --------------------------------------------------------------
-# ECS Service
-# --------------------------------------------------------------
+# =====================================================================
+# ECS Service (Rolling Deployment for Zero Downtime)
+# =====================================================================
 resource "aws_ecs_service" "demo_service" {
   name            = "${var.project}-${var.environment}-${var.cluster_name}-service"
   cluster         = aws_ecs_cluster.demo.id
@@ -124,9 +105,16 @@ resource "aws_ecs_service" "demo_service" {
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
 
+  # 🚀 Zero-Downtime Rolling Deployment
+  deployment_minimum_healthy_percent = 100
+  deployment_maximum_percent         = 200
+  enable_ecs_managed_tags            = true
+  propagate_tags                     = "SERVICE"
+
+  # Network config for Fargate
   network_configuration {
     assign_public_ip = var.assign_public_ip
-    subnets          = local.effective_subnets
+    subnets          = var.subnets
   }
 
   depends_on = [
@@ -137,9 +125,9 @@ resource "aws_ecs_service" "demo_service" {
   tags = var.tags
 }
 
-# --------------------------------------------------------------
+# =====================================================================
 # Outputs
-# --------------------------------------------------------------
+# =====================================================================
 output "ecs_cluster_name" {
   value = aws_ecs_cluster.demo.name
 }
@@ -152,9 +140,9 @@ output "ecs_service_name" {
   value = aws_ecs_service.demo_service.name
 }
 
-# --------------------------------------------------------------
+# =====================================================================
 # Variables
-# --------------------------------------------------------------
+# =====================================================================
 variable "project" {
   type = string
 }
@@ -175,10 +163,8 @@ variable "region" {
   type = string
 }
 
-# Optional: if left empty, defaults to default VPC subnets
 variable "subnets" {
-  type    = list(string)
-  default = []
+  type = list(string)
 }
 
 variable "desired_count" {
@@ -199,4 +185,3 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
-
