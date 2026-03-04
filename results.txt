@@ -1,0 +1,941 @@
+Starting NTP investigation across all nodes...
+
+======================================
+NODE: ip-10-242-22-167.il-central-1.compute.internal
+======================================
+--profile=legacy is deprecated and will be removed in the future. It is recommended to explicitly specify a profile, for example "--profile=general".
+Creating debugging pod node-debugger-ip-10-242-22-167.il-central-1.compute.internal-6k4nt with container debugger on node ip-10-242-22-167.il-central-1.compute.internal.
+Warning: metadata.name: this is used in the Pod's hostname, which can result in surprising behavior; a DNS label is recommended: [must be no more than 63 characters must not contain dots]
+If you don't see a command prompt, try pressing enter.
+warning: couldn't attach to pod/node-debugger-ip-10-242-22-167.il-central-1.compute.internal-6k4nt, falling back to streaming logs: Internal error occurred: unable to upgrade connection: container debugger not found in pod node-debugger-ip-10-242-22-167.il-central-1.compute.internal-6k4nt_default
+E0305 00:27:17.809338    9348 v3.go:79] "Unhandled Error" err="websocket: close sent"
+=== NODE INFO ===
+ip-10-242-22-167.il-central-1.compute.internal
+Wed Mar  4 22:27:16 UTC 2026
+
+=== CHRONY SERVICE ===
+● chronyd.service - NTP client/server
+     Loaded: loaded (/usr/lib/systemd/system/chronyd.service; enabled; preset: enabled)
+    Drop-In: /usr/lib/systemd/system/chronyd.service.d
+             └─default-sources.conf
+     Active: active (running) since Tue 2026-01-27 11:24:02 UTC; 1 month 6 days ago
+       Docs: man:chronyd(8)
+             man:chrony.conf(5)
+   Main PID: 2271 (chronyd)
+      Tasks: 1 (limit: 18858)
+     Memory: 5.1M
+        CPU: 48.190s
+     CGroup: /system.slice/chronyd.service
+             └─2271 /usr/sbin/chronyd -F 2
+
+Mar 04 16:29:43 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 3.87.127.143 (time.aws.com)
+Mar 04 17:06:15 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.210.225.137 (time.aws.com)
+Mar 04 17:44:53 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 44.201.148.133 replaced with 13.218.199.213 (time.aws.com)
+Mar 04 18:21:44 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 44.201.148.133 (time.aws.com)
+Mar 04 18:57:02 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 3.94.91.31 (time.aws.com)
+Mar 04 19:32:47 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+
+=== CHRONY CONFIG ===
+
+=== CHRONY SOURCES ===
+
+  .-- Source mode  '^' = server, '=' = peer, '#' = local clock.
+ / .- Source state '*' = current best, '+' = combined, '-' = not combined,
+| /             'x' = may be in error, '~' = too variable, '?' = unusable.
+||                                                 .- xxxx [ yyyy ] +/- zzzz
+||      Reachability register (octal) -.           |  xxxx = adjusted offset,
+||      Log2(Polling interval) --.      |          |  yyyy = measured offset,
+||                                \     |          |  zzzz = estimated error.
+||                                 |    |           \
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^* 169.254.169.123               3   4   377    13  +6901ns[  +12us] +/-  469us
+^? ec2-54-81-127-33.compute>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-197-201-248.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-94-91-31.compute-1>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-90-191-9.compute->     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-13-218-199-213.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-52-207-222-50.comput>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-44-201-148-133.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-86-4-106.compute-1>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+
+=== CHRONY TRACKING ===
+Reference ID    : A9FEA97B (169.254.169.123)
+Stratum         : 4
+Ref time (UTC)  : Wed Mar 04 22:27:02 2026
+System time     : 0.000000003 seconds slow of NTP time
+Last offset     : +0.000005449 seconds
+RMS offset      : 0.000002327 seconds
+Frequency       : 5.523 ppm slow
+Residual freq   : +0.007 ppm
+Skew            : 0.065 ppm
+Root delay      : 0.000296589 seconds
+Root dispersion : 0.000332738 seconds
+Update interval : 16.3 seconds
+Leap status     : Normal
+
+=== CHRONY LOGS FEB 27 - MAR 1 ===
+Feb 27 10:15:46 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 10:53:46 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 11:24:36 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 54.197.201.248 (time.aws.com)
+Feb 27 11:57:40 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 12:29:01 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 13:08:31 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 13:45:58 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 14:16:48 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 15:21:22 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 54.197.201.248 (time.aws.com)
+Feb 27 15:58:42 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 16:35:00 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 17:09:49 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 17:47:05 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 18:23:14 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 20:39:43 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 21:10:20 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 21:40:55 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 22:17:54 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 23:28:44 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 00:02:27 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 00:33:45 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 01:10:03 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 01:50:38 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 02:21:47 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 02:54:44 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 03:25:54 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 04:02:43 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 04:42:56 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 05:14:30 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 05:46:20 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 06:18:25 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 06:55:33 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 07:35:01 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 08:06:47 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 08:38:53 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 09:10:49 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 10:56:37 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 11:31:07 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 12:02:59 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 12:42:53 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 13:19:12 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 14:29:39 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 15:05:25 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 15:41:42 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 44.201.148.133 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 16:41:50 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 17:13:33 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 21:15:42 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 21:51:24 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 22:26:01 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 44.201.148.133 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 23:37:42 ip-10-242-22-167.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 52.207.222.50 (time.aws.com)
+
+=== CURRENT TIME ===
+1772663237.158486609
+
+
+======================================
+NODE: ip-10-242-24-201.il-central-1.compute.internal
+======================================
+--profile=legacy is deprecated and will be removed in the future. It is recommended to explicitly specify a profile, for example "--profile=general".
+Creating debugging pod node-debugger-ip-10-242-24-201.il-central-1.compute.internal-kfkd5 with container debugger on node ip-10-242-24-201.il-central-1.compute.internal.
+Warning: metadata.name: this is used in the Pod's hostname, which can result in surprising behavior; a DNS label is recommended: [must be no more than 63 characters must not contain dots]
+If you don't see a command prompt, try pressing enter.
+^? ec2-44-201-148-133.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-81-127-33.compute>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-13-218-199-213.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+
+=== CHRONY TRACKING ===
+Reference ID    : A9FEA97B (169.254.169.123)
+Stratum         : 4
+Ref time (UTC)  : Wed Mar 04 22:27:26 2026
+System time     : 0.000000169 seconds fast of NTP time
+Last offset     : +0.000000050 seconds
+RMS offset      : 0.000004900 seconds
+Frequency       : 3.661 ppm slow
+Residual freq   : -0.000 ppm
+Skew            : 0.237 ppm
+Root delay      : 0.000310065 seconds
+Root dispersion : 0.000456318 seconds
+Update interval : 16.3 seconds
+Leap status     : Normal
+
+=== CHRONY LOGS FEB 27 - MAR 1 ===
+Feb 27 00:03:52 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 13.218.199.213 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 00:42:46 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 01:52:33 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 02:25:33 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.210.225.137 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 02:56:27 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 05:47:56 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 13.218.199.213 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 06:26:52 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 08:10:51 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.90.191.9 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 11:02:34 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 11:37:46 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 13.218.199.213 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 12:14:31 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 12:48:55 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 13:23:57 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 13:54:41 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.90.191.9 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 14:30:45 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 15:07:24 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 15:41:13 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 13.218.199.213 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 17:46:40 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.197.201.248 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 18:16:52 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 18:47:08 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 19:17:07 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.210.225.137 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 19:57:57 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.90.191.9 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 20:33:57 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 54.197.201.248 (time.aws.com)
+Feb 27 21:09:00 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 23:22:59 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 23:58:54 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.210.225.137 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 00:35:24 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.197.201.248 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 01:45:08 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 05:42:18 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.90.191.9 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 06:53:19 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 07:28:51 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.210.225.137 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 08:04:29 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.197.201.248 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 09:43:42 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 11:29:09 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.90.191.9 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 12:04:47 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 12:35:59 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.197.201.248 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 13:14:53 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 13:49:35 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.210.225.137 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 15:28:06 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 16:04:51 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 16:40:28 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.90.191.9 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 17:16:13 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.197.201.248 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 17:51:15 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 18:27:24 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.87.127.143 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 19:03:07 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 13.218.199.213 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 19:41:29 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 22:05:53 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 23:15:55 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 23:51:04 ip-10-242-24-201.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 3.94.91.31 (time.aws.com)
+
+=== CURRENT TIME ===
+1772663247.390290273
+
+
+======================================
+NODE: ip-10-242-33-87.il-central-1.compute.internal
+======================================
+--profile=legacy is deprecated and will be removed in the future. It is recommended to explicitly specify a profile, for example "--profile=general".
+Creating debugging pod node-debugger-ip-10-242-33-87.il-central-1.compute.internal-5z7dk with container debugger on node ip-10-242-33-87.il-central-1.compute.internal.
+Warning: metadata.name: this is used in the Pod's hostname, which can result in surprising behavior; a DNS label is recommended: [must be no more than 63 characters must not contain dots]
+If you don't see a command prompt, try pressing enter.
+warning: couldn't attach to pod/node-debugger-ip-10-242-33-87.il-central-1.compute.internal-5z7dk, falling back to streaming logs: Internal error occurred: unable to upgrade connection: container debugger not found in pod node-debugger-ip-10-242-33-87.il-central-1.compute.internal-5z7dk_default
+E0305 00:27:39.339685    7860 v3.go:79] "Unhandled Error" err="websocket: close sent"
+=== NODE INFO ===
+ip-10-242-33-87.il-central-1.compute.internal
+Wed Mar  4 22:27:37 UTC 2026
+
+=== CHRONY SERVICE ===
+● chronyd.service - NTP client/server
+     Loaded: loaded (/usr/lib/systemd/system/chronyd.service; enabled; preset: enabled)
+    Drop-In: /usr/lib/systemd/system/chronyd.service.d
+             └─default-sources.conf
+     Active: active (running) since Tue 2026-01-27 11:24:02 UTC; 1 month 6 days ago
+       Docs: man:chronyd(8)
+             man:chrony.conf(5)
+   Main PID: 2270 (chronyd)
+      Tasks: 1 (limit: 18858)
+     Memory: 5.1M
+        CPU: 49.167s
+     CGroup: /system.slice/chronyd.service
+             └─2270 /usr/sbin/chronyd -F 2
+
+Mar 04 13:53:18 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 52.207.222.50 (time.aws.com)
+Mar 04 15:03:17 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 3.94.91.31 (time.aws.com)
+Mar 04 16:11:35 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.210.225.137 replaced with 54.81.127.33 (time.aws.com)
+Mar 04 16:45:22 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 54.210.225.137 (time.aws.com)
+Mar 04 17:20:18 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 52.207.222.50 (time.aws.com)
+Mar 04 17:55:28 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.87.127.143 replaced with 44.201.148.133 (time.aws.com)
+
+=== CHRONY CONFIG ===
+
+=== CHRONY SOURCES ===
+
+  .-- Source mode  '^' = server, '=' = peer, '#' = local clock.
+ / .- Source state '*' = current best, '+' = combined, '-' = not combined,
+| /             'x' = may be in error, '~' = too variable, '?' = unusable.
+||                                                 .- xxxx [ yyyy ] +/- zzzz
+||      Reachability register (octal) -.           |  xxxx = adjusted offset,
+||      Log2(Polling interval) --.      |          |  yyyy = measured offset,
+||                                \     |          |  zzzz = estimated error.
+||                                 |    |           \
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^* 169.254.169.123               3   4   377     0  +2440ns[  +13us] +/-  397us
+^? ec2-52-207-222-50.comput>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-197-201-248.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-94-91-31.compute-1>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-44-201-148-133.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-87-127-143.compute>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-13-218-199-213.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-90-191-9.compute->     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-210-225-137.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+
+=== CHRONY TRACKING ===
+Reference ID    : A9FEA97B (169.254.169.123)
+Stratum         : 4
+Ref time (UTC)  : Wed Mar 04 22:27:36 2026
+System time     : 0.000009140 seconds fast of NTP time
+Last offset     : +0.000010796 seconds
+RMS offset      : 0.000006223 seconds
+Frequency       : 5.985 ppm slow
+Residual freq   : +0.146 ppm
+Skew            : 0.302 ppm
+Root delay      : 0.000268445 seconds
+Root dispersion : 0.000269449 seconds
+Update interval : 16.2 seconds
+Leap status     : Normal
+
+=== CHRONY LOGS FEB 27 - MAR 1 ===
+Feb 27 07:30:54 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.87.127.143 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 08:02:17 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 09:12:25 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 13.218.199.213 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 09:45:03 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 10:22:58 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 10:55:05 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.87.127.143 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 11:32:44 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 12:04:55 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 12:37:43 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 13.218.199.213 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 13:15:43 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 13:47:12 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 14:25:05 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.87.127.143 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 14:57:09 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 15:30:32 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 16:07:58 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 16:40:20 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 17:49:48 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 18:23:24 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 19:00:23 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 19:32:58 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 20:10:26 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.210.225.137 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 20:41:46 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.87.127.143 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 21:15:40 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 21:53:23 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 22:25:45 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 23:02:52 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 23:33:38 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 02:26:02 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 03:00:38 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.87.127.143 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 03:35:49 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 04:12:06 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 05:52:59 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 06:27:42 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 09:19:55 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 09:54:34 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 10:29:16 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 11:05:37 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.210.225.137 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 11:40:23 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.87.127.143 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 12:46:54 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 13:21:09 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 13:56:11 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 14:31:48 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.86.4.106 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 15:39:07 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 16:13:37 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 52.207.222.50 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 16:48:49 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.87.127.143 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 17:24:17 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 17:59:10 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.210.225.137 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 20:48:44 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 23:07:13 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 44.201.148.133 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 23:41:42 ip-10-242-33-87.il-central-1.compute.internal chronyd[2270]: Source 54.81.127.33 replaced with 54.210.225.137 (time.aws.com)
+
+=== CURRENT TIME ===
+1772663258.809429505
+
+
+======================================
+NODE: ip-10-242-38-180.il-central-1.compute.internal
+======================================
+--profile=legacy is deprecated and will be removed in the future. It is recommended to explicitly specify a profile, for example "--profile=general".
+Creating debugging pod node-debugger-ip-10-242-38-180.il-central-1.compute.internal-frd4l with container debugger on node ip-10-242-38-180.il-central-1.compute.internal.
+Warning: metadata.name: this is used in the Pod's hostname, which can result in surprising behavior; a DNS label is recommended: [must be no more than 63 characters must not contain dots]
+If you don't see a command prompt, try pressing enter.
+warning: couldn't attach to pod/node-debugger-ip-10-242-38-180.il-central-1.compute.internal-frd4l, falling back to streaming logs: Internal error occurred: unable to upgrade connection: container debugger not found in pod node-debugger-ip-10-242-38-180.il-central-1.compute.internal-frd4l_default
+=== NODE INFO ===
+ip-10-242-38-180.il-central-1.compute.internal
+Wed Mar  4 22:27:45 UTC 2026
+
+=== CHRONY SERVICE ===
+● chronyd.service - NTP client/server
+     Loaded: loaded (/usr/lib/systemd/system/chronyd.service; enabled; preset: enabled)
+    Drop-In: /usr/lib/systemd/system/chronyd.service.d
+             └─default-sources.conf
+     Active: active (running) since Tue 2026-01-27 11:24:03 UTC; 1 month 6 days ago
+       Docs: man:chronyd(8)
+             man:chrony.conf(5)
+   Main PID: 2271 (chronyd)
+      Tasks: 1 (limit: 18858)
+     Memory: 5.1M
+        CPU: 49.033s
+     CGroup: /system.slice/chronyd.service
+             └─2271 /usr/sbin/chronyd -F 2
+
+Mar 04 17:02:19 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 3.86.4.106 (time.aws.com)
+Mar 04 17:35:13 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 52.207.222.50 (time.aws.com)
+Mar 04 18:05:30 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 13.218.199.213 (time.aws.com)
+Mar 04 19:07:52 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 54.81.127.33 (time.aws.com)
+Mar 04 19:41:18 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 44.201.148.133 replaced with 54.90.191.9 (time.aws.com)
+Mar 04 20:11:42 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 54.210.225.137 (time.aws.com)
+
+=== CHRONY CONFIG ===
+
+=== CHRONY SOURCES ===
+
+  .-- Source mode  '^' = server, '=' = peer, '#' = local clock.
+ / .- Source state '*' = current best, '+' = combined, '-' = not combined,
+| /             'x' = may be in error, '~' = too variable, '?' = unusable.
+||                                                 .- xxxx [ yyyy ] +/- zzzz
+||      Reachability register (octal) -.           |  xxxx = adjusted offset,
+||      Log2(Polling interval) --.      |          |  yyyy = measured offset,
+||                                \     |          |  zzzz = estimated error.
+||                                 |    |           \
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^* 169.254.169.123               3   4   377     7   -178ns[ -224ns] +/-  338us
+^? ec2-52-207-222-50.comput>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-86-4-106.compute-1>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-44-201-148-133.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-13-218-199-213.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-90-191-9.compute->     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-197-201-248.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-87-127-143.compute>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-210-225-137.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+
+=== CHRONY TRACKING ===
+Reference ID    : A9FEA97B (169.254.169.123)
+Stratum         : 4
+Ref time (UTC)  : Wed Mar 04 22:27:37 2026
+System time     : 0.000000355 seconds slow of NTP time
+Last offset     : -0.000000046 seconds
+RMS offset      : 0.000001134 seconds
+Frequency       : 7.104 ppm slow
+Residual freq   : -0.000 ppm
+Skew            : 0.026 ppm
+Root delay      : 0.000264954 seconds
+Root dispersion : 0.000204414 seconds
+Update interval : 16.1 seconds
+Leap status     : Normal
+
+=== CHRONY LOGS FEB 27 - MAR 1 ===
+Feb 27 08:09:24 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 08:44:38 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 11:00:10 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 11:34:49 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 12:10:31 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 54.197.201.248 (time.aws.com)
+Feb 27 12:46:16 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 13:21:06 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 13:52:10 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 14:26:33 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 15:02:59 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 15:38:54 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 54.197.201.248 (time.aws.com)
+Feb 27 16:12:41 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 17:18:29 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 17:48:32 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 18:21:46 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 19:36:28 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 20:10:53 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 20:47:14 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 22:29:26 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 00:46:49 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 01:21:22 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 01:57:53 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 02:33:16 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 03:07:53 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 03:39:08 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 04:47:59 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 06:31:07 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 07:07:44 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 07:40:00 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 08:52:04 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 09:23:38 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 11:36:26 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 12:11:23 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 12:50:03 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 13:25:54 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 14:01:17 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 14:36:43 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 15:12:25 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 16:51:10 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 17:21:12 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 17:56:00 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 18:36:01 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 19:11:47 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 19:43:54 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 20:20:55 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 20:57:21 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 21:28:40 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 22:04:19 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 22:36:37 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 23:13:03 ip-10-242-38-180.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 52.207.222.50 (time.aws.com)
+
+=== CURRENT TIME ===
+1772663266.039080780
+
+
+======================================
+NODE: ip-10-242-41-175.il-central-1.compute.internal
+======================================
+--profile=legacy is deprecated and will be removed in the future. It is recommended to explicitly specify a profile, for example "--profile=general".
+Creating debugging pod node-debugger-ip-10-242-41-175.il-central-1.compute.internal-x5ldz with container debugger on node ip-10-242-41-175.il-central-1.compute.internal.
+Warning: metadata.name: this is used in the Pod's hostname, which can result in surprising behavior; a DNS label is recommended: [must be no more than 63 characters must not contain dots]
+If you don't see a command prompt, try pressing enter.
+warning: couldn't attach to pod/node-debugger-ip-10-242-41-175.il-central-1.compute.internal-x5ldz, falling back to streaming logs: Internal error occurred: unable to upgrade connection: container debugger not found in pod node-debugger-ip-10-242-41-175.il-central-1.compute.internal-x5ldz_default
+=== NODE INFO ===
+ip-10-242-41-175.il-central-1.compute.internal
+Wed Mar  4 22:27:58 UTC 2026
+
+=== CHRONY SERVICE ===
+● chronyd.service - NTP client/server
+     Loaded: loaded (/usr/lib/systemd/system/chronyd.service; enabled; preset: enabled)
+    Drop-In: /usr/lib/systemd/system/chronyd.service.d
+             └─default-sources.conf
+     Active: active (running) since Tue 2026-01-27 11:24:03 UTC; 1 month 6 days ago
+       Docs: man:chronyd(8)
+             man:chrony.conf(5)
+   Main PID: 2268 (chronyd)
+      Tasks: 1 (limit: 18858)
+     Memory: 5.1M
+        CPU: 49.085s
+     CGroup: /system.slice/chronyd.service
+             └─2268 /usr/sbin/chronyd -F 2
+
+Mar 04 11:46:33 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.197.201.248 replaced with 52.207.222.50 (time.aws.com)
+Mar 04 12:56:07 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 54.197.201.248 (time.aws.com)
+Mar 04 13:29:23 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 3.87.127.143 (time.aws.com)
+Mar 04 14:00:06 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 54.210.225.137 (time.aws.com)
+Mar 04 16:50:40 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 54.81.127.33 (time.aws.com)
+Mar 04 17:27:22 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 3.86.4.106 (time.aws.com)
+
+=== CHRONY CONFIG ===
+
+=== CHRONY SOURCES ===
+
+  .-- Source mode  '^' = server, '=' = peer, '#' = local clock.
+ / .- Source state '*' = current best, '+' = combined, '-' = not combined,
+| /             'x' = may be in error, '~' = too variable, '?' = unusable.
+||                                                 .- xxxx [ yyyy ] +/- zzzz
+||      Reachability register (octal) -.           |  xxxx = adjusted offset,
+||      Log2(Polling interval) --.      |          |  yyyy = measured offset,
+||                                \     |          |  zzzz = estimated error.
+||                                 |    |           \
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^* 169.254.169.123               3   4   377    15   +766ns[ +907ns] +/-  386us
+^? ec2-54-81-127-33.compute>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-90-191-9.compute->     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-197-201-248.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-44-201-148-133.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-87-127-143.compute>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-52-207-222-50.comput>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-13-218-199-213.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-210-225-137.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+
+=== CHRONY TRACKING ===
+Reference ID    : A9FEA97B (169.254.169.123)
+Stratum         : 4
+Ref time (UTC)  : Wed Mar 04 22:27:43 2026
+System time     : 0.000000338 seconds slow of NTP time
+Last offset     : +0.000000141 seconds
+RMS offset      : 0.000003164 seconds
+Frequency       : 1.378 ppm slow
+Residual freq   : -0.000 ppm
+Skew            : 0.050 ppm
+Root delay      : 0.000242535 seconds
+Root dispersion : 0.000265762 seconds
+Update interval : 16.1 seconds
+Leap status     : Normal
+
+=== CHRONY LOGS FEB 27 - MAR 1 ===
+Feb 27 06:46:05 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 07:16:08 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 07:49:21 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 08:30:44 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 10:09:07 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 10:41:14 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 11:22:14 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 13:06:29 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 13:41:49 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 14:14:17 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 16:17:10 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 16:49:35 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 17:20:29 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 17:51:25 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 18:21:48 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 44.201.148.133 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 19:24:44 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 19:54:59 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 20:26:31 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 20:56:58 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 21:26:56 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 22:30:13 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 23:01:45 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 23:32:26 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 00:02:40 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 44.201.148.133 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 01:04:59 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 01:37:07 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 02:53:00 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 03:29:06 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 05:12:53 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 06:20:04 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 07:21:46 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 07:51:43 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 09:57:08 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 10:34:18 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 44.201.148.133 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 11:13:00 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 12:23:26 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 12:58:04 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 13:33:09 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.90.191.9 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 14:05:48 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 44.201.148.133 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 15:07:21 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 15:45:06 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 16:58:22 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 19:16:38 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 20:17:57 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.90.191.9 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 20:55:22 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 44.201.148.133 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 21:34:14 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 22:09:00 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 22:44:38 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 23:20:06 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 23:55:26 ip-10-242-41-175.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 3.86.4.106 (time.aws.com)
+
+=== CURRENT TIME ===
+1772663278.317352158
+
+
+======================================
+NODE: ip-10-242-48-90.il-central-1.compute.internal
+======================================
+--profile=legacy is deprecated and will be removed in the future. It is recommended to explicitly specify a profile, for example "--profile=general".
+Creating debugging pod node-debugger-ip-10-242-48-90.il-central-1.compute.internal-9j8sh with container debugger on node ip-10-242-48-90.il-central-1.compute.internal.
+Warning: metadata.name: this is used in the Pod's hostname, which can result in surprising behavior; a DNS label is recommended: [must be no more than 63 characters must not contain dots]
+If you don't see a command prompt, try pressing enter.
+^? ec2-3-86-4-106.compute-1>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-90-191-9.compute->     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-197-201-248.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+
+=== CHRONY TRACKING ===
+Reference ID    : A9FEA97B (169.254.169.123)
+Stratum         : 4
+Ref time (UTC)  : Wed Mar 04 22:28:00 2026
+System time     : 0.000000268 seconds slow of NTP time
+Last offset     : -0.000000434 seconds
+RMS offset      : 0.000000843 seconds
+Frequency       : 1.551 ppm slow
+Residual freq   : -0.000 ppm
+Skew            : 0.010 ppm
+Root delay      : 0.000294641 seconds
+Root dispersion : 0.000274074 seconds
+Update interval : 16.2 seconds
+Leap status     : Normal
+
+=== CHRONY LOGS FEB 27 - MAR 1 ===
+Feb 27 07:41:51 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 08:51:55 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 09:28:00 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 10:02:44 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.90.191.9 replaced with 54.197.201.248 (time.aws.com)
+Feb 27 10:34:27 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 11:13:23 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 11:44:24 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 12:19:53 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 12:54:57 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 13:26:09 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 13:56:38 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 54.197.201.248 (time.aws.com)
+Feb 27 14:29:08 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 16:13:36 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 44.201.148.133 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 16:48:57 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 17:55:50 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 19:41:50 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 20:14:49 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 20:48:10 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 44.201.148.133 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 22:03:19 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 54.197.201.248 (time.aws.com)
+Feb 27 22:34:12 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 23:07:09 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 23:40:44 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 00:23:33 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 03:42:21 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 04:17:19 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 04:53:05 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 44.201.148.133 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 05:31:01 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 06:07:47 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 06:43:19 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 07:17:43 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 08:55:03 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 11:10:55 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 11:46:03 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 12:56:27 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 13:08:43 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Can't synchronise: no selectable sources
+Feb 28 13:33:51 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 44.201.148.133 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 13:49:25 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Selected source 169.254.169.123
+Feb 28 13:49:25 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: System clock wrong by 1.615171 seconds
+Feb 28 14:10:53 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.81.127.33 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 14:45:34 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 15:54:52 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 16:26:20 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.87.127.143 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 16:56:26 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 17:30:39 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 52.207.222.50 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 20:56:54 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.94.91.31 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 21:31:54 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.197.201.248 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 22:08:27 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 13.218.199.213 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 22:45:24 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 54.210.225.137 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 23:23:10 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 44.201.148.133 replaced with 54.197.201.248 (time.aws.com)
+Feb 28 23:57:44 ip-10-242-48-90.il-central-1.compute.internal chronyd[2271]: Source 3.86.4.106 replaced with 54.210.225.137 (time.aws.com)
+
+=== CURRENT TIME ===
+1772663286.783918032
+
+
+======================================
+NODE: ip-10-242-59-180.il-central-1.compute.internal
+======================================
+--profile=legacy is deprecated and will be removed in the future. It is recommended to explicitly specify a profile, for example "--profile=general".
+Creating debugging pod node-debugger-ip-10-242-59-180.il-central-1.compute.internal-lvlhp with container debugger on node ip-10-242-59-180.il-central-1.compute.internal.
+Warning: metadata.name: this is used in the Pod's hostname, which can result in surprising behavior; a DNS label is recommended: [must be no more than 63 characters must not contain dots]
+If you don't see a command prompt, try pressing enter.
+warning: couldn't attach to pod/node-debugger-ip-10-242-59-180.il-central-1.compute.internal-lvlhp, falling back to streaming logs: Internal error occurred: unable to upgrade connection: container debugger not found in pod node-debugger-ip-10-242-59-180.il-central-1.compute.internal-lvlhp_default
+E0305 00:28:19.126388    2052 v3.go:79] "Unhandled Error" err="websocket: close sent"
+=== NODE INFO ===
+ip-10-242-59-180.il-central-1.compute.internal
+Wed Mar  4 22:28:17 UTC 2026
+
+=== CHRONY SERVICE ===
+● chronyd.service - NTP client/server
+     Loaded: loaded (/usr/lib/systemd/system/chronyd.service; enabled; preset: enabled)
+    Drop-In: /usr/lib/systemd/system/chronyd.service.d
+             └─default-sources.conf
+     Active: active (running) since Tue 2026-01-27 11:24:03 UTC; 1 month 6 days ago
+       Docs: man:chronyd(8)
+             man:chrony.conf(5)
+   Main PID: 2269 (chronyd)
+      Tasks: 1 (limit: 18858)
+     Memory: 5.1M
+        CPU: 49.978s
+     CGroup: /system.slice/chronyd.service
+             └─2269 /usr/sbin/chronyd -F 2
+
+Mar 04 16:45:12 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.210.225.137 replaced with 54.90.191.9 (time.aws.com)
+Mar 04 17:17:02 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 44.201.148.133 replaced with 52.207.222.50 (time.aws.com)
+Mar 04 17:52:44 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.81.127.33 replaced with 54.210.225.137 (time.aws.com)
+Mar 04 18:28:09 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.87.127.143 replaced with 54.81.127.33 (time.aws.com)
+Mar 04 19:03:18 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 13.218.199.213 replaced with 44.201.148.133 (time.aws.com)
+Mar 04 19:37:43 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.90.191.9 replaced with 3.87.127.143 (time.aws.com)
+
+=== CHRONY CONFIG ===
+
+=== CHRONY SOURCES ===
+
+  .-- Source mode  '^' = server, '=' = peer, '#' = local clock.
+ / .- Source state '*' = current best, '+' = combined, '-' = not combined,
+| /             'x' = may be in error, '~' = too variable, '?' = unusable.
+||                                                 .- xxxx [ yyyy ] +/- zzzz
+||      Reachability register (octal) -.           |  xxxx = adjusted offset,
+||      Log2(Polling interval) --.      |          |  yyyy = measured offset,
+||                                \     |          |  zzzz = estimated error.
+||                                 |    |           \
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^* 169.254.169.123               3   4   377     9   +689ns[+1004ns] +/-  606us
+^? ec2-54-197-201-248.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-52-207-222-50.comput>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-90-191-9.compute->     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-94-91-31.compute-1>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-87-127-143.compute>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-86-4-106.compute-1>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-13-218-199-213.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-210-225-137.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+
+=== CHRONY TRACKING ===
+Reference ID    : A9FEA97B (169.254.169.123)
+Stratum         : 4
+Ref time (UTC)  : Wed Mar 04 22:28:07 2026
+System time     : 0.000000599 seconds fast of NTP time
+Last offset     : +0.000000315 seconds
+RMS offset      : 0.000003660 seconds
+Frequency       : 3.168 ppm slow
+Residual freq   : +0.001 ppm
+Skew            : 0.161 ppm
+Root delay      : 0.000320288 seconds
+Root dispersion : 0.000461451 seconds
+Update interval : 16.1 seconds
+Leap status     : Normal
+
+=== CHRONY LOGS FEB 27 - MAR 1 ===
+Feb 27 16:04:53 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.90.191.9 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 16:38:06 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.210.225.137 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 17:15:45 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.87.127.143 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 17:49:15 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.86.4.106 replaced with 54.210.225.137 (time.aws.com)
+Feb 27 18:22:34 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 52.207.222.50 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 18:57:07 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 13.218.199.213 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 22:57:42 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 52.207.222.50 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 23:32:07 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 00:06:56 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.87.127.143 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 00:43:13 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.210.225.137 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 01:18:58 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 44.201.148.133 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 01:49:54 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.86.4.106 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 02:24:36 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 52.207.222.50 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 02:59:24 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.81.127.33 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 03:35:16 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 13.218.199.213 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 04:11:25 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.87.127.143 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 06:59:56 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.210.225.137 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 07:34:56 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 44.201.148.133 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 08:09:29 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.86.4.106 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 08:45:49 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.81.127.33 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 09:21:04 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 13.218.199.213 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 09:52:02 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 52.207.222.50 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 10:27:12 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.87.127.143 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 11:01:59 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.210.225.137 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 11:38:07 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 44.201.148.133 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 12:13:22 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.86.4.106 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 12:44:17 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.81.127.33 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 13:09:46 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Can't synchronise: no selectable sources
+Feb 28 13:19:38 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 13.218.199.213 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 13:28:19 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Selected source 169.254.169.123
+Feb 28 13:28:19 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: System clock wrong by 103.680418 seconds
+Feb 28 13:30:29 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Can't synchronise: no selectable sources
+Feb 28 13:51:14 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Selected source 169.254.169.123
+Feb 28 13:51:14 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: System clock wrong by -102.403697 seconds
+Feb 28 13:51:30 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Can't synchronise: no selectable sources
+Feb 28 13:51:46 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Selected source 169.254.169.123
+Feb 28 13:53:59 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 52.207.222.50 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 14:30:12 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.87.127.143 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 15:06:03 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.210.225.137 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 15:36:18 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 44.201.148.133 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 16:12:09 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.86.4.106 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 16:46:11 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.81.127.33 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 18:28:53 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.210.225.137 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 20:13:21 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 44.201.148.133 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 20:48:00 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 13.218.199.213 replaced with 44.201.148.133 (time.aws.com)
+Feb 28 21:21:15 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 3.86.4.106 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 21:57:29 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 52.207.222.50 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 22:34:04 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.90.191.9 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 23:06:03 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 54.210.225.137 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 23:40:09 ip-10-242-59-180.il-central-1.compute.internal chronyd[2269]: Source 44.201.148.133 replaced with 54.90.191.9 (time.aws.com)
+
+=== CURRENT TIME ===
+1772663298.620640447
+
+
+======================================
+NODE: ip-10-242-63-227.il-central-1.compute.internal
+======================================
+--profile=legacy is deprecated and will be removed in the future. It is recommended to explicitly specify a profile, for example "--profile=general".
+Creating debugging pod node-debugger-ip-10-242-63-227.il-central-1.compute.internal-4kj8w with container debugger on node ip-10-242-63-227.il-central-1.compute.internal.
+Warning: metadata.name: this is used in the Pod's hostname, which can result in surprising behavior; a DNS label is recommended: [must be no more than 63 characters must not contain dots]
+=== NODE INFO ===
+ip-10-242-63-227.il-central-1.compute.internal
+Wed Mar  4 22:28:22 UTC 2026
+
+=== CHRONY SERVICE ===
+● chronyd.service - NTP client/server
+     Loaded: loaded (/usr/lib/systemd/system/chronyd.service; enabled; preset: enabled)
+    Drop-In: /usr/lib/systemd/system/chronyd.service.d
+             └─default-sources.conf
+     Active: active (running) since Tue 2026-01-27 11:24:03 UTC; 1 month 6 days ago
+       Docs: man:chronyd(8)
+             man:chrony.conf(5)
+   Main PID: 2268 (chronyd)
+      Tasks: 1 (limit: 18858)
+     Memory: 5.1M
+        CPU: 48.375s
+     CGroup: /system.slice/chronyd.service
+             └─2268 /usr/sbin/chronyd -F 2
+
+Mar 04 14:50:48 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 13.218.199.213 (time.aws.com)
+Mar 04 15:23:31 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 44.201.148.133 replaced with 3.86.4.106 (time.aws.com)
+Mar 04 16:59:53 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.197.201.248 replaced with 54.90.191.9 (time.aws.com)
+Mar 04 17:30:06 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 54.197.201.248 (time.aws.com)
+Mar 04 18:00:04 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 54.210.225.137 (time.aws.com)
+Mar 04 18:33:11 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 44.201.148.133 (time.aws.com)
+
+=== CHRONY CONFIG ===
+
+=== CHRONY SOURCES ===
+
+  .-- Source mode  '^' = server, '=' = peer, '#' = local clock.
+ / .- Source state '*' = current best, '+' = combined, '-' = not combined,
+| /             'x' = may be in error, '~' = too variable, '?' = unusable.
+||                                                 .- xxxx [ yyyy ] +/- zzzz
+||      Reachability register (octal) -.           |  xxxx = adjusted offset,
+||      Log2(Polling interval) --.      |          |  yyyy = measured offset,
+||                                \     |          |  zzzz = estimated error.
+||                                 |    |           \
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^* 169.254.169.123               3   4   377     3    -10us[  -11us] +/-  596us
+^? ec2-54-210-225-137.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-86-4-106.compute-1>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-81-127-33.compute>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-87-127-143.compute>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-44-201-148-133.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-3-94-91-31.compute-1>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-13-218-199-213.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+^? ec2-54-197-201-248.compu>     0  10     0     -     +0ns[   +0ns] +/-    0ns
+
+=== CHRONY TRACKING ===
+Reference ID    : A9FEA97B (169.254.169.123)
+Stratum         : 4
+Ref time (UTC)  : Wed Mar 04 22:28:18 2026
+System time     : 0.000001185 seconds slow of NTP time
+Last offset     : -0.000000840 seconds
+RMS offset      : 0.000001229 seconds
+Frequency       : 5.358 ppm slow
+Residual freq   : -0.001 ppm
+Skew            : 0.032 ppm
+Root delay      : 0.000280461 seconds
+Root dispersion : 0.000422264 seconds
+Update interval : 16.3 seconds
+Leap status     : Normal
+
+=== CHRONY LOGS FEB 27 - MAR 1 ===
+Feb 27 09:16:30 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 09:46:49 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.90.191.9 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 10:19:36 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 13:46:16 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.90.191.9 replaced with 13.218.199.213 (time.aws.com)
+Feb 27 14:22:30 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 54.90.191.9 (time.aws.com)
+Feb 27 15:01:41 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 15:36:42 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 16:45:45 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 44.201.148.133 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 17:22:33 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 54.81.127.33 (time.aws.com)
+Feb 27 18:28:42 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 19:03:13 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 20:46:46 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 52.207.222.50 (time.aws.com)
+Feb 27 21:21:02 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 44.201.148.133 replaced with 3.87.127.143 (time.aws.com)
+Feb 27 21:56:17 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 3.86.4.106 (time.aws.com)
+Feb 27 22:32:40 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 3.94.91.31 (time.aws.com)
+Feb 27 23:07:45 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 44.201.148.133 (time.aws.com)
+Feb 27 23:38:53 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 00:13:12 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 00:43:04 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.90.191.9 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 01:16:24 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 02:31:52 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 03:05:21 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 03:41:19 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.86.4.106 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 04:51:32 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 3.86.4.106 (time.aws.com)
+Feb 28 06:27:28 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 07:00:48 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.90.191.9 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 07:40:39 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 08:17:25 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 10:01:10 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 10:33:05 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.90.191.9 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 11:03:01 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 11:37:10 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.94.91.31 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 12:18:02 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 12:53:53 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 3.94.91.31 (time.aws.com)
+Feb 28 13:08:38 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Can't synchronise: no selectable sources
+Feb 28 13:24:58 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 13:27:48 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Selected source 169.254.169.123
+Feb 28 13:27:48 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: System clock wrong by 1.265005 seconds
+Feb 28 13:30:14 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Can't synchronise: no selectable sources
+Feb 28 13:48:34 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Selected source 169.254.169.123
+Feb 28 13:48:34 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: System clock wrong by 1.153861 seconds
+Feb 28 13:55:03 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 14:29:23 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.90.191.9 replaced with 3.87.127.143 (time.aws.com)
+Feb 28 15:10:09 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 17:55:32 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 3.87.127.143 replaced with 54.210.225.137 (time.aws.com)
+Feb 28 18:31:18 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 52.207.222.50 replaced with 13.218.199.213 (time.aws.com)
+Feb 28 19:09:37 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.81.127.33 replaced with 52.207.222.50 (time.aws.com)
+Feb 28 19:46:02 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.90.191.9 replaced with 54.81.127.33 (time.aws.com)
+Feb 28 22:33:02 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 13.218.199.213 replaced with 54.90.191.9 (time.aws.com)
+Feb 28 23:05:14 ip-10-242-63-227.il-central-1.compute.internal chronyd[2268]: Source 54.210.225.137 replaced with 3.87.127.143 (time.aws.com)
+
+=== CURRENT TIME ===
+1772663302.621372710
+
+
+Investigation completed.

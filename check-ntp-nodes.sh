@@ -1,0 +1,48 @@
+#!/bin/bash
+
+echo "Starting NTP investigation across all nodes..."
+echo
+
+for NODE in $(kubectl get nodes -o name | cut -d/ -f2); do
+
+echo "======================================"
+echo "NODE: $NODE"
+echo "======================================"
+
+kubectl debug node/$NODE -it --image=993825007188.dkr.ecr.il-central-1.amazonaws.com/docker.io/library/amazonlinux:latest -- bash -c '
+chroot /host bash -c "
+echo === NODE INFO ===
+hostname
+date -u
+
+echo
+echo === CHRONY SERVICE ===
+systemctl status chronyd --no-pager | head -20
+
+echo
+echo === CHRONY CONFIG ===
+grep 169.254.169.123 /etc/chrony.conf || true
+
+echo
+echo === CHRONY SOURCES ===
+chronyc sources -v || true
+
+echo
+echo === CHRONY TRACKING ===
+chronyc tracking || true
+
+echo
+echo === CHRONY LOGS FEB 27 - MAR 1 ===
+journalctl -u chronyd --since \"2026-02-27\" --until \"2026-03-01\" --no-pager | tail -50
+
+echo
+echo === CURRENT TIME ===
+date -u +%s.%N
+"
+'
+
+echo
+echo
+done
+
+echo "Investigation completed."
