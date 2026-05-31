@@ -1,0 +1,43 @@
+name: Docker automation to push images to ECR
+
+on:
+  workflow_dispatch:
+    inputs:
+      ACCOUNT_ID:
+        description: "The AWS Account ID to push the image to"
+        required: true
+        type: choice
+        options:
+          - "014498627927"
+          - "993825007188"
+          - "869935097196"
+          - "619071333631"
+          - "140023400154"
+        default: "869935097196"
+      IMAGE_URL:
+        description: "Image URL to push to ECR"
+        required: true
+        default: "ghcr.io/nginx/nginx-gateway-fabric"
+      IMAGE_TAG:
+        description: "Image Tag to push to ECR"
+        required: true
+        default: "2.3.0"
+  push:
+    branches:
+      - Devops-577-create-k8s-gateway-api-module
+permissions:
+  contents: read
+  id-token: write # This is required for requesting the JWT
+  pull-requests: write
+  packages: write
+
+
+jobs:
+  push-to-ecr:
+    name: Push to ECR
+    uses: ClickIDF/pakar-actions/.github/workflows/image-push-ecr-automation.yaml@main
+    with:
+      ACCOUNT_ID: ${{ inputs.ACCOUNT_ID }}
+      IMAGE_URL: ${{ inputs.IMAGE_URL }}
+      IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
+

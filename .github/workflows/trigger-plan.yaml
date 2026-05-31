@@ -1,0 +1,225 @@
+name: Trigger Plan
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # This is required for requesting the JWT
+  pull-requests: write
+
+env:
+  AWS_REGION: "il-central-1"
+  WL_ACCOUNT_ID: "619071333631"
+  INFRA_ACCOUNT_ID: "014498627927"
+  PRE_PROD_ACCOUNT_ID: "140023400154"
+  INT_ACCOUNT_ID: "869935097196"
+
+jobs:
+  check_files_PR_INT:
+    runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.check_files_int.outputs.trigger }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: check which files on PR on Integration
+        id: check_files_int
+        shell: bash
+        run: |
+          echo "Current working directory: $(pwd)"
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt || true
+          cat changed_files.txt
+          # Filter only the 'terragrunt.hcl' files under the 'products' directory
+          grep '^products/.*terragrunt\.hcl$' changed_files.txt | grep -v 'products/anan-magen/.*/shared/k8s/' > filtered_files.txt || true
+          NON_K8S_DIRS=$(cat filtered_files.txt | grep "^products/anan-magen/il-central-1/int/") || true
+          echo "NON_K8S_DIRS: $NON_K8S_DIRS"
+          if [ -z "$NON_K8S_DIRS" ]; then
+            echo "No Non-K8s directories found. Please check the directory paths or filter conditions."
+            exit 0
+          fi
+          NON_K8S_DIRS_LIST=$(echo "$NON_K8S_DIRS" | tr '\n' ' ')
+          echo "Found Non-K8s directories:"
+          echo "$NON_K8S_DIRS_LIST"
+          echo "NON_K8S_DIRS=\"$NON_K8S_DIRS_LIST\"" >> $GITHUB_ENV
+          echo "trigger=true" >> $GITHUB_OUTPUT
+
+  trigger_plan_INT:
+    needs: check_files_PR_INT
+    if: "${{ needs.check_files_PR_INT.outputs.output1 == 'true' }}"
+    uses: ClickIDF/cap-infra-repo/.github/workflows/terragrunt-plan.yaml@main
+    with:
+      ACCOUNT_ID_VAR: "869935097196"
+      check_dir: "int"
+      HUB_ACCOUNT_ID: "014498638955"
+      runner_ENV: "dev"
+
+### _______________________________________________________________    detect_changes_DEV:
+
+  # check_files_PR_DEV:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     non_k8s_found: ${{ steps.check_files_dev.outputs.non_k8s_found }}
+  #     non_k8s_files: ${{ steps.check_files_dev.outputs.non_k8s_files }}
+  #     k8s_found: ${{ steps.check_files_dev.outputs.k8s_found }}
+  #     k8s_files: ${{ steps.check_files_dev.outputs.k8s_files }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Detect changed files
+  #       id: check_files_dev
+  #       shell: bash
+  #       run: |
+  #         git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt || true
+  #         NON_K8S_FILES=$(grep '^products/.*terragrunt\.hcl$' changed_files.txt | grep -v 'shared/k8s' | grep '^products/anan-magen/il-central-1/dev/' | tr '\n' ' ')
+  #         K8S_FILES=$(grep '^products/anan-magen/il-central-1/dev/shared/k8s/.*terragrunt\.hcl$' changed_files.txt | tr '\n' ' ')
+  #         [ -n "$NON_K8S_FILES" ] && echo "non_k8s_found=true" >> $GITHUB_OUTPUT || echo "non_k8s_found=false" >> $GITHUB_OUTPUT
+  #         [ -n "$K8S_FILES" ] && echo "k8s_found=true" >> $GITHUB_OUTPUT || echo "k8s_found=false" >> $GITHUB_OUTPUT
+  #         echo "non_k8s_files=$NON_K8S_FILES" >> $GITHUB_OUTPUT
+  #         echo "k8s_files=$K8S_FILES" >> $GITHUB_OUTPUT
+
+  # trigger_plan_DEV:
+  #   needs: check_files_PR_DEV
+  #   uses: ClickIDF/cap-infra-repo/.github/workflows/terragrunt-plan-TRYOUT.yaml@main
+  #   with:
+  #     ACCOUNT_ID_VAR: "619071333631"
+  #     check_dir: "dev"
+  #     HUB_ACCOUNT_ID: "014498638955"
+  #     runner_ENV: "dev"
+  #     non_k8s_found: ${{ needs.check_files_PR_DEV.outputs.non_k8s_found }}
+  #     non_k8s_files: ${{ needs.check_files_PR_DEV.outputs.non_k8s_files }}
+  #     k8s_found: ${{ needs.check_files_PR_DEV.outputs.k8s_found }}
+  #     k8s_files: ${{ needs.check_files_PR_DEV.outputs.k8s_files }}
+
+
+
+##########_____________________________________________________________________________
+
+  check_files_PR_DEV:
+    runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.check_files_dev.outputs.trigger }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: check which files on PR on Development
+        id: check_files_dev
+        shell: bash
+        run: |
+          echo "Current working directory: $(pwd)"
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt || true
+          cat changed_files.txt
+          # Filter only the 'terragrunt.hcl' files under the 'products' directory
+          grep '^products/.*terragrunt\.hcl$' changed_files.txt | grep -v 'products/anan-magen/.*/shared/k8s/' > filtered_files.txt || true
+          NON_K8S_DIRS=$(cat filtered_files.txt | grep -E "^products/anan-magen/il-central-1/dev/") || true
+          echo "NON_K8S_DIRS: $NON_K8S_DIRS"
+          if [ -z "$NON_K8S_DIRS" ]; then
+            echo "No Non-K8s directories found. Please check the directory paths or filter conditions."
+            exit 0
+          fi
+          NON_K8S_DIRS_LIST=$(echo "$NON_K8S_DIRS" | tr '\n' ' ')
+          echo "Found Non-K8s directories:"
+          echo "$NON_K8S_DIRS_LIST"
+          echo "NON_K8S_DIRS=\"$NON_K8S_DIRS_LIST\"" >> $GITHUB_ENV
+          echo "trigger=true" >> $GITHUB_OUTPUT
+
+  trigger_plan_DEV:
+    needs: check_files_PR_DEV
+    if: "${{ needs.check_files_PR_DEV.outputs.output1 == 'true' }}"
+    uses: ClickIDF/cap-infra-repo/.github/workflows/terragrunt-plan.yaml@main
+    with:
+      ACCOUNT_ID_VAR: "619071333631"
+      check_dir: "dev"
+      HUB_ACCOUNT_ID: "014498638955"
+      runner_ENV: "dev"
+
+  check_files_PR_STG:
+    runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.check_files_stg.outputs.trigger }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: check which files on PR on PRE PROD
+        id: check_files_stg
+        shell: bash
+        run: |
+          echo "Current working directory: $(pwd)"
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt || true
+          cat changed_files.txt
+          # Filter only the 'terragrunt.hcl' files under the 'products' directory
+          grep '^products/.*terragrunt\.hcl$' changed_files.txt | grep -v 'products/anan-magen/.*/shared/k8s/' > filtered_files.txt || true
+          NON_K8S_DIRS=$(cat filtered_files.txt | grep "^products/anan-magen/il-central-1/stg/") || true
+          echo "NON_K8S_DIRS: $NON_K8S_DIRS"
+          if [ -z "$NON_K8S_DIRS" ]; then
+            echo "No Non-K8s directories found. Please check the directory paths or filter conditions."
+            exit 0
+
+
+          fi
+          NON_K8S_DIRS_LIST=$(echo "$NON_K8S_DIRS" | tr '\n' ' ')
+          echo "Found Non-K8s directories:"
+          echo "$NON_K8S_DIRS_LIST"
+          echo "NON_K8S_DIRS=\"$NON_K8S_DIRS_LIST\"" >> $GITHUB_ENV
+          echo "trigger=true" >> $GITHUB_OUTPUT
+
+  trigger_plan_STG:
+    needs: check_files_PR_STG
+    if: "${{ needs.check_files_PR_STG.outputs.output1 == 'true' }}"
+    uses: ClickIDF/cap-infra-repo/.github/workflows/terragrunt-plan.yaml@main
+    with:
+      ACCOUNT_ID_VAR: "140023400154"
+      check_dir: "stg"
+      HUB_ACCOUNT_ID: "014498643213"
+      runner_ENV: "prd"
+
+  check_files_PR_PRD:
+    runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.check_files_prd.outputs.trigger }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: check which files on PR on PRE PROD
+        id: check_files_prd
+        shell: bash
+        run: |
+          echo "Current working directory: $(pwd)"
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt || true
+          cat changed_files.txt
+          # Filter only the 'terragrunt.hcl' files under the 'products' directory
+          grep '^products/.*terragrunt\.hcl$' changed_files.txt | grep -v 'products/anan-magen/.*/shared/k8s/' > filtered_files.txt || true
+          NON_K8S_DIRS=$(cat filtered_files.txt | grep "^products/anan-magen/il-central-1/prd/") || true
+          echo "NON_K8S_DIRS: $NON_K8S_DIRS"
+          if [ -z "$NON_K8S_DIRS" ]; then
+            echo "No Non-K8s directories found. Please check the directory paths or filter conditions."
+            exit 0
+          fi
+          NON_K8S_DIRS_LIST=$(echo "$NON_K8S_DIRS" | tr '\n' ' ')
+          echo "Found Non-K8s directories:"
+          echo "$NON_K8S_DIRS_LIST"
+          echo "NON_K8S_DIRS=\"$NON_K8S_DIRS_LIST\"" >> $GITHUB_ENV
+          echo "trigger=true" >> $GITHUB_OUTPUT
+
+  trigger_plan_PRD:
+    needs: check_files_PR_PRD
+    if: "${{ needs.check_files_PR_PRD.outputs.output1 == 'true' }}"
+    uses: ClickIDF/cap-infra-repo/.github/workflows/terragrunt-plan.yaml@main
+    with:
+      ACCOUNT_ID_VAR: "993825007188"
+      check_dir: "prd"
+      HUB_ACCOUNT_ID: "014498643213"
+      runner_ENV: "prd"

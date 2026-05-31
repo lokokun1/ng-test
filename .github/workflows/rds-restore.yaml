@@ -1,0 +1,289 @@
+name: RDS Restore
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        type: choice
+        options: [DEV, STG, PRD]
+
+      db_name:
+        type: choice
+        options: [settings, reports, messageflow]
+
+      day_offset:
+        type: choice
+        options: ["0","1","2","3","4","5","6"]
+
+      hour:
+        type: choice
+        options: ["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23"]
+
+      minute:
+        type: choice
+        options: ["00","05","10","15","20","25","30","35","40","45","50","55"]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: il-central-1
+  INFRA_ACCOUNT_ID: "014498627927"
+
+jobs:
+  restore:
+    runs-on: codebuild-gh-runner-infrastructure-${{ github.run_id }}-${{ github.run_attempt }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+
+      # ---------------- AUTH ----------------
+      - name: Resolve environment
+        id: setup_vars
+        run: |
+          python3 .github/workflows/scaling-automation/find_cred.py \
+            --environment ${{ github.event.inputs.env }}
+        env:
+          ENV_MAPPING_SECRET: ${{ secrets.ENV_ACCOUNT_MAPPING }}
+
+      - name: AWS Auth (Infra)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ env.INFRA_ACCOUNT_ID }}:role/wl-cicd-infrastructure-codebuild-role-${{ steps.setup_vars.outputs.account_id }}
+
+      - name: AWS Auth (Execution)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ steps.setup_vars.outputs.account_id }}:role/wl-cicd-infrastructure-execution-role
+          role-chaining: true
+
+      # ---------------- DB RESOLVE ----------------
+      - name: Resolve DB
+        run: |
+          case "${{ github.event.inputs.env }}" in
+            DEV) ENV_DB="development" ;;
+            STG) ENV_DB="staging" ;;
+            PRD) ENV_DB="prod" ;;
+          esac
+
+          ALL_DBS=$(aws rds describe-db-instances \
+            --query "DBInstances[].DBInstanceIdentifier" \
+            --output text)
+
+          DB=$(echo "$ALL_DBS" | tr '\t' '\n' | grep "$ENV_DB" | grep -i "${{ github.event.inputs.db_name }}" | head -n 1)
+
+          if [ -z "$DB" ]; then
+            echo "❌ DB not found"
+            exit 1
+          fi
+
+          RESTORE_DB="restore-${DB}-$(date +%s)"
+
+          echo "DB=$DB" >> $GITHUB_ENV
+          echo "RESTORE_DB=$RESTORE_DB" >> $GITHUB_ENV
+
+      # ---------------- SUBNET ----------------
+      - name: Get subnet
+        run: |
+          SUBNET=$(aws rds describe-db-instances \
+            --db-instance-identifier $DB \
+            --query "DBInstances[0].DBSubnetGroup.DBSubnetGroupName" \
+            --output text)
+
+          echo "SUBNET=$SUBNET" >> $GITHUB_ENV
+
+      # ---------------- DECISION ----------------
+      - name: Install deps
+        run: |
+          pip install pytz
+
+      - name: Install jq
+        run: |
+          curl -Lo jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64
+          chmod +x jq
+          mv jq /usr/local/bin/
+
+      - name: Decide restore
+        run: |
+          RESULT=$(python .github/workflows/rds-restore/resolver.py \
+            "$DB" \
+            "${{ github.event.inputs.day_offset }}" \
+            "${{ github.event.inputs.hour }}" \
+            "${{ github.event.inputs.minute }}")
+
+          echo "$RESULT"
+
+          MODE=$(echo $RESULT | jq -r .mode)
+          echo "MODE=$MODE" >> $GITHUB_ENV
+
+          if [ "$MODE" = "PITR" ]; then
+            echo "RESTORE_TIME=$(echo $RESULT | jq -r .restore_time)" >> $GITHUB_ENV
+          else
+            echo "SNAPSHOT_ID=$(echo $RESULT | jq -r .snapshot_id)" >> $GITHUB_ENV
+          fi
+
+      # ---------------- RESTORE ----------------
+      - name: Restore PITR
+        if: env.MODE == 'PITR'
+        run: |
+          aws rds restore-db-instance-to-point-in-time \
+            --source-db-instance-identifier $DB \
+            --target-db-instance-identifier $RESTORE_DB \
+            --restore-time "$RESTORE_TIME" \
+            --db-subnet-group-name $SUBNET
+
+      - name: Restore SNAPSHOT
+        if: env.MODE == 'SNAPSHOT'
+        run: |
+          aws rds restore-db-instance-from-db-snapshot \
+            --db-instance-identifier $RESTORE_DB \
+            --db-snapshot-identifier $SNAPSHOT_ID \
+            --db-subnet-group-name $SUBNET
+
+      - name: Wait restore
+        run: |
+          aws rds wait db-instance-available \
+            --db-instance-identifier $RESTORE_DB
+
+      # ----------------  COPY SG  ----------------
+      - name: Copy Security Groups from original DB
+        run: |
+          echo "Fetching original SG..."
+
+          ORIGINAL_SG=$(aws rds describe-db-instances \
+            --db-instance-identifier $DB \
+            --query "DBInstances[0].VpcSecurityGroups[].VpcSecurityGroupId" \
+            --output text)
+
+          echo "Original SG: $ORIGINAL_SG"
+
+          echo "Applying SG to restore DB..."
+
+          aws rds modify-db-instance \
+            --db-instance-identifier $RESTORE_DB \
+            --vpc-security-group-ids $ORIGINAL_SG \
+            --apply-immediately
+
+      - name: Wait after SG update
+        run: |
+          aws rds wait db-instance-available \
+            --db-instance-identifier $RESTORE_DB
+
+      # ---------------- DEBUG ----------------
+      - name: Print restore endpoint
+        run: |
+          aws rds describe-db-instances \
+            --db-instance-identifier $RESTORE_DB \
+            --query "DBInstances[0].Endpoint.Address"
+      # ---------------- SWAP ----------------
+      - name: Rename current → old
+        run: |
+          aws rds modify-db-instance \
+            --db-instance-identifier $DB \
+            --new-db-instance-identifier ${DB}-old \
+            --apply-immediately
+
+      - name: Wait until old exists
+        run: |
+          for i in {1..30}; do
+            FOUND=$(aws rds describe-db-instances \
+              --query "DBInstances[?DBInstanceIdentifier=='${DB}-old'].DBInstanceIdentifier" \
+              --output text)
+
+            [ "$FOUND" = "${DB}-old" ] && break
+            sleep 20
+          done
+
+      - name: Wait old ready
+        run: |
+          aws rds wait db-instance-available \
+            --db-instance-identifier ${DB}-old
+
+      - name: Promote restored
+        run: |
+          aws rds modify-db-instance \
+            --db-instance-identifier $RESTORE_DB \
+            --new-db-instance-identifier $DB \
+            --apply-immediately
+
+      - name: Wait new exists
+        run: |
+          for i in {1..30}; do
+            FOUND=$(aws rds describe-db-instances \
+              --query "DBInstances[?DBInstanceIdentifier=='$DB'].DBInstanceIdentifier" \
+              --output text)
+
+            [ "$FOUND" = "$DB" ] && break
+            sleep 20
+          done
+
+      - name: Wait final ready
+        run: |
+          aws rds wait db-instance-available \
+            --db-instance-identifier $DB
+
+      # ---------------- TERRAGRUNT ----------------
+      - name: Install Terraform + Terragrunt
+        run: |
+          curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_linux_amd64.zip
+          unzip terraform.zip && mv terraform /usr/local/bin/
+
+          curl -Lo terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.57.0/terragrunt_linux_amd64
+          chmod +x terragrunt && mv terragrunt /usr/local/bin/
+
+      - name: Set TG env
+        run: |
+          case "${{ github.event.inputs.env }}" in
+            DEV) echo "TG_ENV=dev" >> $GITHUB_ENV ;;
+            STG) echo "TG_ENV=stg" >> $GITHUB_ENV ;;
+            PRD) echo "TG_ENV=prd" >> $GITHUB_ENV ;;
+          esac
+
+      - name: Map DB folder
+        run: |
+          case "${{ github.event.inputs.db_name }}" in
+            settings)
+              if [ "$TG_ENV" = "dev" ]; then
+                DB_FOLDER="settingsdb"
+              else
+                DB_FOLDER="settingdb"
+              fi
+              ;;
+            reports) DB_FOLDER="reportsdb" ;;
+            messageflow) DB_FOLDER="messageflowdb" ;;
+          esac
+
+          echo "DB_FOLDER=$DB_FOLDER" >> $GITHUB_ENV
+
+      - name: Terragrunt Init
+        run: |
+          cd products/anan-magen/il-central-1/$TG_ENV/shared/rds/$DB_FOLDER
+          terragrunt init
+
+      - name: Import DB if not exists in state
+        run: |
+          cd products/anan-magen/il-central-1/$TG_ENV/shared/rds/$DB_FOLDER
+
+          echo "Checking if DB exists in state..."
+
+          if terragrunt state list | grep -q "module.db_instance.aws_db_instance.this"; then
+            echo "✔ DB already managed in state — skipping import"
+          else
+            echo "Importing DB into state..."
+            terragrunt import module.db_instance.aws_db_instance.this[0] $DB
+          fi
+
+      - name: Terragrunt Plan
+        run: |
+          cd products/anan-magen/il-central-1/$TG_ENV/shared/rds/$DB_FOLDER
+          terragrunt plan
+
+      - name: Done
+        run: echo "Restore completed"
+        

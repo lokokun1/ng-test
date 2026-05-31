@@ -1,0 +1,459 @@
+name: Terragrunt Apply
+
+on:
+  workflow_call:
+    inputs:
+      ACCOUNT_ID_VAR:
+        required: true
+        type: string
+      check_dir:
+        required: true
+        type: string
+      HUB_ACCOUNT_ID:
+        required: true
+        type: string
+      runner_ENV:
+        required: true
+        type: string
+      GITHUB_ENVIRONMENT:
+        required: true
+        type: string
+    secrets:
+      personal_access_token:
+        required: false
+
+permissions:
+  contents: read
+  id-token: write # This is required for requesting the JWT
+  pull-requests: write
+
+env:
+  tg_version: "0.60.1"
+  AWS_REGION: "il-central-1"
+  INFRA_ACCOUNT_ID: "014498627927"
+  TF_VERSION: "1.9.7"
+
+jobs:
+  apply:
+    runs-on: codebuild-gh-runner-infrastructure-${{ github.run_id }}-${{ github.run_attempt }}
+    environment: ${{ inputs.GITHUB_ENVIRONMENT }}
+    steps:
+      - name: Export and File Secrets
+        id: export_secrets
+        shell: node {0} # This tells GitHub to run the block as a Node.js script
+        env:
+          # Pass your GitHub secrets object as an environment variable
+          SECRETS_JSON: ${{ toJSON(secrets) }}
+          # Configuration inputs (mirroring the original code)
+          PREFIX: 'APP_'          # Optional: Add a prefix to keys, leave empty '' if not needed
+          EXCLUDE: 'github_token' # Optional: Comma-separated keys to skip
+          FILE_PATH: '.env'       # Optional: Path to write a file, leave empty '' if text-only
+        run: |
+          const fs = require('fs');
+          const crypto = require('crypto');
+
+          const secrets = JSON.parse(process.env.SECRETS_JSON || '{}');
+          const prefix = process.env.PREFIX || '';
+          const excludeList = (process.env.EXCLUDE || '').split(',').map(s => s.trim());
+          const filePath = process.env.FILE_PATH || '';
+
+          let fileContent = '';
+
+          for (const [key, value] of Object.entries(secrets)) {
+            if (excludeList.includes(key)) continue;
+
+            const newKey = `${prefix}${key}`;
+            
+            // Generate a unique delimiter to isolate multi-line data safely
+            const delimiter = `GH-ENV-${crypto.randomBytes(8).toString('hex')}`;
+
+            // Replicates multi-line export behavior safely for GITHUB_ENV
+            const envPayload = `${newKey}<<${delimiter}\n${value}\n${delimiter}\n`;
+            fs.appendFileSync(process.env.GITHUB_ENV, envPayload);
+            
+            console.log(`Exported secret: ${newKey}`);
+
+            if (filePath) {
+              fileContent += `${newKey}="${value.replace(/"/g, '\\"')}"\n`;
+            }
+          }
+
+          if (filePath && fileContent) {
+            fs.writeFileSync(filePath, fileContent);
+            console.log(`Successfully wrote secrets to ${filePath}`);
+          }
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure aws credentials - Federated Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: il-central-1
+          role-to-assume: arn:aws:iam::${{ env.INFRA_ACCOUNT_ID }}:role/wl-cicd-infrastructure-codebuild-role-${{ inputs.ACCOUNT_ID_VAR }}
+          role-session-name: GitHubActions-Test
+
+      - name: Configure AWS Credentials - Infra Execution Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: il-central-1
+          role-to-assume: arn:aws:iam::${{ inputs.ACCOUNT_ID_VAR }}:role/wl-cicd-infrastructure-execution-role
+          role-session-name: GitHubActions-Test
+          role-chaining: true
+
+      # # TODO TO USE IN FUTURE
+      # - name: Login Github CLI with App Token
+      #   uses: actions/create-github-app-token@v1
+      #   id: app-token
+      #   with:
+      #     app-id: ${{ secrets.APP_ID }}
+      #     private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      # - name: Initialize Git with App Token
+      #   run: |
+      #     git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com".insteadOf https://github.com
+
+      - name: Setup Git Authentication with Personal Access Token (Fine-grained)
+        id: init
+        env:
+          TF_TOKEN: ${{ secrets.PAT_OF_GH_USER }}
+        run: |
+          rm -f ~/.gitconfig
+          git config --global url."https://${{vars.GH_USER}}:${{ env.TF_TOKEN }}@github.com".insteadOf https://github.com
+
+      - name: Terraform setup
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "${{env.TF_VERSION}}"
+
+      - name: Cache Terragrunt
+        id: cache-terragrunt
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/terragrunt
+          key: ${{ runner.os }}-terragrunt-${{ env.tg_version }}
+
+      - name: Install Terragrunt
+        if: steps.cache-terragrunt.outputs.cache-hit != 'true'
+        run: |
+          echo "Installing Terragrunt"
+          wget https://github.com/gruntwork-io/terragrunt/releases/download/v${{ env.tg_version }}/terragrunt_linux_amd64
+          chmod +x terragrunt_linux_amd64
+          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+          terragrunt --version
+
+      - name: Verify Terragrunt Installation
+        run: terragrunt --version
+
+      # Get the list of changed files in the PR
+      - name: Get changed files
+        id: changed-files
+        run: |
+          # Set the script to not fail on pipe failures
+          set +o pipefail
+
+          # Get the merge commit SHA from the pull request
+          merge_sha=$(git rev-parse HEAD)
+
+          # Log the merge SHA for debugging
+          echo "Merge SHA: $merge_sha"
+
+          # Identify modified .hcl files compared to the previous commit
+          hcl_files=$(git diff --name-only HEAD~1 HEAD | grep "\.hcl$" | grep -v 'products/anan-magen/.*/shared/k8s/' || true)
+
+          if [[ -z "$hcl_files" ]]; then
+            echo "No non-k8s .hcl files modified. Exiting..."
+            echo "" > filtered_files.txt
+            exit 0
+          fi
+          echo "Modified .hcl files:"
+          echo "$hcl_files"
+
+          echo "$hcl_files" > filtered_files.txt
+          NON_K8S_DIRS=$(cat filtered_files.txt | grep "^products/anan-magen/il-central-1/$CHECK_DIR/") || true
+          echo "NON_K8S_DIRS: $NON_K8S_DIRS"
+          if [ -z "$NON_K8S_DIRS" ]; then
+            echo "No Non-K8s directories found. Please check the directory paths or filter conditions."
+            exit 0
+          fi
+          NON_K8S_DIRS_LIST=$(echo "$NON_K8S_DIRS" | tr '\n' ' ')
+          echo "Found Non-K8s directories:"
+          echo "$NON_K8S_DIRS_LIST"
+          echo "$NON_K8S_DIRS_LIST" > filtered_files.txt
+          if [ ! -s filtered_files.txt ]; then
+            echo "No non-k8s relevant terragrunt.hcl files changed. Skipping plan."
+            exit 0
+          fi
+
+          echo "Changed terragrunt.hcl files:"
+          cat filtered_files.txt
+        shell: bash
+
+      - name: Run Terragrunt HCL Format on changed directories
+        run: |
+          while IFS= read -r file; do
+            # Skip empty lines in case filtered_files.txt is empty
+            if [[ -z "$file" ]]; then
+              continue
+            fi
+            # Extract the directory path for the file (ignores the file itself)
+            dir=$(dirname "$file")
+            echo "Running Terragrunt HCL Format on $dir"
+
+            # Run the Terragrunt hclfmt check for that directory
+            terragrunt hclfmt --terragrunt-check --terragrunt-diff --terragrunt-working-dir "$dir"
+
+          done < filtered_files.txt
+
+      - name: Run Terragrunt plan and apply
+        id: plan
+        env:
+          MESSAGEDB_USER: ${{ secrets.MESSAGEDB_USER }}
+          REPORTSDB_USER: ${{ secrets.REPORTSDB_USER }}
+          SETTINGSDB_USER: ${{ secrets.SETTINGSDB_USER }}
+          BROKER_USER_PROFILER_PP: ${{ secrets.BROKER_USER_PROFILER_PP }}
+          BROKER_PASSWORD_PROFILER_PP: ${{ secrets.BROKER_PASSWORD_PROFILER_PP }}
+          BROKER_USER_MONITOR_PP: ${{ secrets.BROKER_USER_MONITOR_PP }}
+          BROKER_PASSWORD_MONITOR_PP: ${{ secrets.BROKER_PASSWORD_MONITOR_PP }}
+          BROKER_USER_MASAL_GW_PP: ${{ secrets.BROKER_USER_MASAL_GW_PP }}
+          BROKER_PASSWORD_MASAL_GW_PP: ${{ secrets.BROKER_PASSWORD_MASAL_GW_PP }}
+          BROKER_USER_CLIENTAPI_PP: ${{ secrets.BROKER_USER_CLIENTAPI_PP }}
+          BROKER_PASSWORD_CLIENTAPI_PP: ${{ secrets.BROKER_PASSWORD_CLIENTAPI_PP }}
+          BROKER_USER_PROFILER: ${{ secrets.BROKER_USER_PROFILER }}
+          BROKER_PASSWORD_PROFILER: ${{ secrets.BROKER_PASSWORD_PROFILER }}
+          BROKER_USER_MONITOR: ${{ secrets.BROKER_USER_MONITOR }}
+          BROKER_PASSWORD_MONITOR: ${{ secrets.BROKER_PASSWORD_MONITOR }}
+          BROKER_USER_MASAL_GW: ${{ secrets.BROKER_USER_MASAL_GW }}
+          BROKER_PASSWORD_MASAL_GW: ${{ secrets.BROKER_PASSWORD_MASAL_GW }}
+          BROKER_USER_CLIENTAPI: ${{ secrets.BROKER_USER_CLIENTAPI }}
+          BROKER_PASSWORD_CLIENTAPI: ${{ secrets.BROKER_PASSWORD_CLIENTAPI }}
+          OPENSEARCH_USER: ${{ secrets.OPENSEARCH_USER }}
+          OPENSEARCH_PASSWORD: ${{ secrets.OPENSEARCH_PASSWORD }}
+        run: |
+          declare -A service_dirs_to_apply=()
+          while IFS= read -r file; do
+            # Skip empty lines in case filtered_files.txt is empty
+            if [[ -z "$file" ]]; then
+              continue
+            fi
+            if [ -f "$file" ]; then
+              # Get the directory of the changed file
+              dir=$(dirname "$file")
+              echo "Changing directory to: $dir"
+              
+              # Change to the directory where terragrunt.hcl is located
+              pushd "$dir"
+              # uncomment when running something related to finops lambda
+              # aws logs delete-log-group --log-group-name "/aws/lambda/finops-resource-scheduler" 
+              # aws lambda delete-function --function-name finops-resource-scheduler
+
+              # aws lambda invoke --function-name finops-resource-scheduler --payload '{"action": "start"}' --cli-binary-format raw-in-base64-out response.json
+              # echo "Lambda invoked."
+
+              # Print current directory for debugging
+              echo "Running Terragrunt in directory: $(pwd)"
+              terragrunt init
+              terragrunt --terragrunt-non-interactive apply -auto-approve
+              # # Get the ASG name
+              ASG=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[0].AutoScalingGroupName" --output text)
+              echo "Detected ASG: $ASG"
+              # # Tag the ASG
+              aws autoscaling create-or-update-tags --tags Key=finops,Value=true,PropagateAtLaunch=true,ResourceId="$ASG",ResourceType=auto-scaling-group
+
+              popd
+            fi  
+            # If the file is under ecs-task-def, map and queue ecs-service-task as well
+            if [[ "$dir" == *"client-simulator/ecs-task-def"* ]]; then
+              service_dir="${dir/client-simulator\/ecs-task-def/client-simulator/ecs-service-task}"
+              service_dirs_to_apply["$service_dir"]=1
+            fi
+          done < filtered_files.txt
+
+          echo "Now applying service-task files mapped from updated task-defs..."
+          for service_dir in "${!service_dirs_to_apply[@]}"; do
+            echo " $service_dir"
+            if [[ -f "$service_dir/terragrunt.hcl" ]]; then
+              pushd "$service_dir"
+              terragrunt init
+              terragrunt --terragrunt-non-interactive apply -auto-approve
+              popd
+            else
+              echo "No terragrunt.hcl in $service_dir, skipping..."
+            fi
+          done
+
+      - name: Apply ECS Service Task
+        run: |
+          echo "Applying Terragrunt configuration for ECS Service Task"
+          cd products/anan-magen/il-central-1/${{ inputs.check_dir }}/client-simulator/ecs-service-task
+          terragrunt init
+          terragrunt --terragrunt-non-interactive apply -auto-approve
+
+  apply-k8s:
+    runs-on: codebuild-gh-runner-orange-${{ inputs.runner_ENV }}-${{ github.run_id }}-${{ github.run_attempt }}
+    environment: ${{ inputs.GITHUB_ENVIRONMENT }}
+    needs: [apply]
+    steps:
+      - name: Export and File Secrets
+        id: export_secrets
+        shell: node {0} # This tells GitHub to run the block as a Node.js script
+        env:
+          # Pass your GitHub secrets object as an environment variable
+          SECRETS_JSON: ${{ toJSON(secrets) }}
+          # Configuration inputs (mirroring the original code)
+          PREFIX: 'APP_'          # Optional: Add a prefix to keys, leave empty '' if not needed
+          EXCLUDE: 'github_token' # Optional: Comma-separated keys to skip
+          FILE_PATH: '.env'       # Optional: Path to write a file, leave empty '' if text-only
+        run: |
+          const fs = require('fs');
+          const crypto = require('crypto');
+
+          const secrets = JSON.parse(process.env.SECRETS_JSON || '{}');
+          const prefix = process.env.PREFIX || '';
+          const excludeList = (process.env.EXCLUDE || '').split(',').map(s => s.trim());
+          const filePath = process.env.FILE_PATH || '';
+
+          let fileContent = '';
+
+          for (const [key, value] of Object.entries(secrets)) {
+            if (excludeList.includes(key)) continue;
+
+            const newKey = `${prefix}${key}`;
+            
+            // Generate a unique delimiter to isolate multi-line data safely
+            const delimiter = `GH-ENV-${crypto.randomBytes(8).toString('hex')}`;
+
+            // Replicates multi-line export behavior safely for GITHUB_ENV
+            const envPayload = `${newKey}<<${delimiter}\n${value}\n${delimiter}\n`;
+            fs.appendFileSync(process.env.GITHUB_ENV, envPayload);
+            
+            console.log(`Exported secret: ${newKey}`);
+
+            if (filePath) {
+              fileContent += `${newKey}="${value.replace(/"/g, '\\"')}"\n`;
+            }
+          }
+
+          if (filePath && fileContent) {
+            fs.writeFileSync(filePath, fileContent);
+            console.log(`Successfully wrote secrets to ${filePath}`);
+          }
+           
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure aws credentials - Federated Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: il-central-1
+          role-to-assume: arn:aws:iam::${{ inputs.HUB_ACCOUNT_ID }}:role/wl-cicd-build-codebuild-role-${{ inputs.ACCOUNT_ID_VAR }}
+
+      - name: Configure AWS Credentials - Build Execution Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: il-central-1
+          role-to-assume: arn:aws:iam::${{ inputs.ACCOUNT_ID_VAR }}:role/wl-cicd-build-execution-role
+          role-chaining: true
+
+      # # TODO TO USE IN FUTURE
+      # - name: Login Github CLI with App Token
+      #   uses: actions/create-github-app-token@v1
+      #   id: app-token
+      #   with:
+      #     app-id: ${{ secrets.APP_ID }}
+      #     private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      # - name: Initialize Git with App Token
+      #   run: |
+      #     git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com".insteadOf https://github.com
+
+      - name: Setup Git Authentication with Personal Access Token (Fine-grained)
+        id: init
+        env:
+          TF_TOKEN: ${{ secrets.PAT_OF_GH_USER }}
+        run: |
+          rm -f ~/.gitconfig
+          git config --global url."https://${{vars.GH_USER}}:${{ env.TF_TOKEN }}@github.com".insteadOf https://github.com
+
+      - name: Terraform setup
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "${{env.TF_VERSION}}"
+
+      - name: Cache Terragrunt
+        id: cache-terragrunt
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/terragrunt
+          key: ${{ runner.os }}-terragrunt-${{ env.tg_version }}
+
+      - name: Install Terragrunt
+        if: steps.cache-terragrunt.outputs.cache-hit != 'true'
+        run: |
+          echo "Installing Terragrunt"
+          wget https://github.com/gruntwork-io/terragrunt/releases/download/v${{ env.tg_version }}/terragrunt_linux_amd64
+          chmod +x terragrunt_linux_amd64
+          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+
+      - name: Verify Terragrunt Installation
+        run: terragrunt --version
+
+      - name: Get changed K8s files
+        id: changed-files-k8s
+        run: |
+          set +o pipefail
+          merge_sha=$(git rev-parse HEAD)
+          hcl_files=$(git diff --name-only HEAD~1 HEAD  | grep '^products/anan-magen/.*/shared/k8s/.*\.hcl$' || true)
+
+          if [[ -z "$hcl_files" ]]; then
+            echo "No K8s .hcl files modified. Exiting..."
+            echo "" > k8s_files.txt
+            exit 0
+          fi
+          echo "Modified k8s .hcl files:"
+          echo "$hcl_files"
+          echo "$hcl_files" > k8s_files.txt
+
+      - name: Run Terragrunt HCL Format on changed directories
+        run: |
+          while IFS= read -r file; do
+            # Skip empty lines in case k8s_files.txt is empty
+            if [[ -z "$file" ]]; then
+              continue
+            fi
+            # Extract the directory path for the file
+            dir=$(dirname "$file")
+            echo "Running Terragrunt HCL Format on $dir"
+
+            # Run the Terragrunt hclfmt check for that directory
+            terragrunt hclfmt --terragrunt-check --terragrunt-diff --terragrunt-working-dir "$dir"
+
+          done < k8s_files.txt
+
+      - name: Run Terragrunt Apply on K8s files
+        env:
+          OPENSEARCH_USER: ${{ secrets.OPENSEARCH_USER }}
+          OPENSEARCH_PASSWORD: ${{ secrets.OPENSEARCH_PASSWORD }}
+          AZURE_CLICK_TENANT_ID: ${{ vars.AZURE_CLICK_TENANT_ID }}
+          ARGOCD_AZURE_CLIENT_ID: ${{ vars.ARGOCD_AZURE_CLIENT_ID }}
+          ARGOCD_AZURE_CLIENT_SECRET: ${{ secrets.ARGOCD_AZURE_CLIENT_SECRET }}
+          ARGOCD_ADMIN_GROUP_GUID: ${{ vars.ARGOCD_ADMIN_GROUP_GUID }}
+          ARGOCD_DEVELOPER_GROUP_GUID: ${{ vars.ARGOCD_DEVELOPER_GROUP_GUID }}
+          ARGOCD_NOC_GROUP_GUID: ${{ vars.ARGOCD_NOC_GROUP_GUID }}
+        run: |
+          while IFS= read -r file; do
+            # Skip empty lines in case k8s_files.txt is empty
+            if [[ -z "$file" ]]; then
+              continue
+            fi
+            dir=$(dirname "$file")
+            pushd "$dir"
+            terragrunt init
+            terragrunt --terragrunt-non-interactive apply -auto-approve -lock=false
+            terragrunt apply -auto-approve -lock=false --terragrunt-non-interactive
+            popd
+          done < k8s_files.txt
